@@ -13,6 +13,8 @@ RUN useradd -ms /bin/bash dmwm
 USER dmwm
 ENV HOME /home/dmwm
 WORKDIR /home/dmwm
+RUN mkdir artifacts
+RUN mkdir certs
 RUN mkdir ContainerScripts
 
 # Remove this when stable
@@ -23,8 +25,6 @@ COPY ContainerScripts /home/dmwm/ContainerScripts
 RUN git clone https://github.com/cms-sw/cms-bot.git
 
 RUN sh ContainerScripts/updateGit.sh
-
-RUN mkdir artifacts
 
 ENTRYPOINT ["ContainerScripts/runSlice.sh"]
 CMD ["0", "10"]

@@ -1,6 +1,11 @@
 #! /bin/bash
 
 echo Running slice $1 of $2
+set -x
+
+# Make sure we the certs we use are readable by us and only us 
+
+/home/dmwm/ContainerScripts/fixCertificates.sh
 
 # Start up services (Couch and MySQL)
 
