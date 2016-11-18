@@ -1,0 +1,31 @@
+{% macro line_report(line, severity, code, module, message) -%}
+    {%- if severity in ['W', 'E'] %}
+        <b>
+    {%- endif %}
+    {%- if module %}
+        {{ severity }}{{ code }}, line {{ line }} in {{ module }}: {{ message }}
+    {%- else %}
+        {{ severity }}{{ code }}, line {{ line }}: {{ message }}
+    {%- endif %}
+    {%- if severity in ['W', 'E'] %}
+        </b>
+    {%- endif %}
+{%- endmacro %}
+
+
+<h1>pylint warnings</h1>
+<ul>
+    {% for filename in filenames %}
+        <li>{{ filename }}</li>
+        <ul>
+            {% for severity in ['E', 'W', 'R', 'C', 'I'] %} {# EWRCI #}
+                {% for event in report[filename]['test']['events'] %}
+                    {% if event[1] == severity %}
+                        <li>{{ line_report(event[0], event[1], event[2], event[3], event[4]) }}</li>
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endfor %}
+</ul>
+

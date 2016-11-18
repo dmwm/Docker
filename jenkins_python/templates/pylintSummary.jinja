@@ -1,0 +1,34 @@
+{% macro score_report(filename, score, baseScore=False) -%}
+    <li>
+        {%- if score|float < baseScore|float or score|float < 8.0 %}
+            <b>
+        {%- endif %}
+        {%- if baseScore %}
+            {%- if score|float < 8.0 %}
+                {{ filename }} is poor quality with score of {{ score }}
+            {%- elif baseScore != score %}
+                {{ filename }} score changed from {{ baseScore }} to {{ score }}
+            {%- else %}
+                {{ filename }} score unchanged at {{ score }}
+            {%- endif %}
+        {%- else %}
+            {{ filename }} added with score {{ score }}
+        {%- endif %}
+        {%- if score|float < baseScore|float or score|float < 8.0 %}
+            </b>
+        {%- endif %}
+    </li>
+{%- endmacro %}
+
+
+<h1>pylint summary</h1>
+<ul>
+    {% for filename in filenames %}
+        {% if report[filename].base %}
+            {{ score_report(filename, report[filename].test.score, report[filename].base.score) }}
+        {% else %}
+            {{ score_report(filename, report[filename].test.score) }}
+        {% endif %}
+    {% endfor %}
+</ul>
+
