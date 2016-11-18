@@ -2,6 +2,8 @@ FROM vondo/cms_grid
 
 # Add the extra system stuff we need
 
+RUN echo "Updating the base system - 2016-11-17"
+
 RUN yum -y install cern-get-sso-cookie && yum clean all
 
 # Add a new user (CMS stuff refuses to install as root)
@@ -18,12 +20,12 @@ RUN mkdir certs
 RUN mkdir ContainerScripts
 
 # Remove this when stable
-COPY ContainerScripts/installWMCore.sh /home/dmwm/ContainerScripts/installWMCore.sh
-RUN sh ContainerScripts/installWMCore.sh
 COPY ContainerScripts /home/dmwm/ContainerScripts
-
+RUN echo "Release version of WMCore 1.0.21.patch1"
+ENV DMWM_ARCH slc6_amd64_gcc493
+RUN sh ContainerScripts/installWMCore.sh
 RUN git clone https://github.com/cms-sw/cms-bot.git
-
+RUN echo "Updating git again"
 RUN sh ContainerScripts/updateGit.sh
 
 ENTRYPOINT ["ContainerScripts/runSlice.sh"]
