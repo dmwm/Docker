@@ -4,6 +4,7 @@ FROM python:3
 
 RUN pip install Jinja2
 RUN pip install PyGithub
+RUN pip install xunitparser
 
 COPY scripts scripts
 COPY templates templates

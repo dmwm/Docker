@@ -4,6 +4,8 @@ import json
 import os
 
 import jinja2
+import xunitparser
+
 from github import Github
 
 pylintReportFile = 'pylint.jinja'
