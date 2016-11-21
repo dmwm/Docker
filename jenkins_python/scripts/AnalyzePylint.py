@@ -16,25 +16,37 @@ reportOn = {}
 failed = False
 reportExists = False
 
-with open('pylintReport.json', 'r') as reportFile:
-    report = json.load(reportFile)
-    if report:
-        reportExists = True
 
-    templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
-    templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
-    pylintReportTemplate = templateEnv.get_template(pylintReportFile)
-    pylintSummaryTemplate = templateEnv.get_template(pylintSummaryFile)
+def buildPylintReport():
 
-    # Finally, process the template to produce our final text.
-    pylintReport = pylintReportTemplate.render({'report': report,
-                                                'filenames': sorted(report.keys()),
-                                                })
-    pylintSummary = pylintSummaryTemplate.render({'report': report,
-                                                 'filenames': sorted(report.keys()),
-                                                 })
+    with open('pylintReport.json', 'r') as reportFile:
+        report = json.load(reportFile)
+        if report:
+            reportExists = True
 
-    print(pylintSummary)
+        templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
+        templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
+        pylintReportTemplate = templateEnv.get_template(pylintReportFile)
+        pylintSummaryTemplate = templateEnv.get_template(pylintSummaryFile)
+
+        # Finally, process the template to produce our final text.
+        pylintReport = pylintReportTemplate.render({'report': report,
+                                                    'filenames': sorted(report.keys()),
+                                                    })
+        pylintSummary = pylintSummaryTemplate.render({'report': report,
+                                                     'filenames': sorted(report.keys()),
+                                                     })
+    return pylintSummary, pylintReport
+
+
+
+with open('artifacts/PullRequestReport.html', 'w') as html:
+    pylintSummary, pylintReport = buildPylintReport()
+    html.write(pylintSummary)
+    html.write(pylintReport)
+
+
+
 
 #     for filename in sorted(report.keys()):
 #         fileReport = report[filename]

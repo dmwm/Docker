@@ -7,9 +7,15 @@ RUN pip install PyGithub
 
 COPY scripts scripts
 COPY templates templates
+RUN mkdir artifacts
+
+
 
 # Temporary
 
 COPY pylintReport.json pylintReport.json
 
-CMD ['/bin/bash']
+
+ENTRYPOINT ["scripts/AnalyzePylint.py"]
+
+#CMD ['/bin/bash']
