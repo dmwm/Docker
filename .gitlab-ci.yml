@@ -9,7 +9,7 @@ build_cms_grid:
     - docker-image-build
   script: "" # unused but this line is required by GitLab CI
   variables:
-    TO: gitlab-registry.cern.ch/gartung/cms-dwdm-docker:cms_grid # where to push resulting image
+    TO: gitlab-registry.cern.ch/CMSDOCKS/dmwm:cms_grid # where to push resulting image
     CONTEXT_DIR: cms_grid
     FROM: cern/slc6-base:latest
 
@@ -20,7 +20,7 @@ build_jenkins_python:
     - docker-image-build
   script: "" # unused but this line is required by GitLab CI
   variables:
-    TO: gitlab-registry.cern.ch/gartung/cms-dwdm-docker:jenkins_python # where to push resulting image
+    TO: gitlab-registry.cern.ch/CMSDOCKS/dmwm:jenkins_python # where to push resulting image
     CONTEXT_DIR: jenkins_python
     FROM: python:3
 
@@ -31,6 +31,6 @@ build_wmcore_tests:
     - docker-image-build
   script: "" # unused but this line is required by GitLab CI
   variables:
-    TO: gitlab-registry.cern.ch/gartung/cms-dwdm-docker:wmcore_tests # where to push resulting image
+    TO: gitlab-registry.cern.ch/CMSDOCKS/dmwm:wmcore_tests # where to push resulting image
     CONTEXT_DIR: wmcore_tests
-    FROM: gitlab-registry.cern.ch/gartung/cms-dwdm-docker:cms_grid
+    FROM: gitlab-registry.cern.ch/CMSDOCKS/dmwm:cms_grid
