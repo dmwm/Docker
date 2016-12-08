@@ -27,7 +27,7 @@ RUN sh ContainerScripts/installWMCore.sh
 RUN git clone https://github.com/cms-sw/cms-bot.git
 RUN echo "Updating git again"
 RUN sh ContainerScripts/updateGit.sh
-
-ENTRYPOINT ["ContainerScripts/runSlice.sh"]
-CMD ["0", "10"]
+ENTRYPOINT ["/bin/bash"]
+#ENTRYPOINT ["ContainerScripts/runSlice.sh"]
+#CMD ["0", "10"]
 
