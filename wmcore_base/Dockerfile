@@ -26,11 +26,8 @@ COPY ContainerScripts /home/dmwm/ContainerScripts
 RUN echo "Release version of WMCore 1.0.21.patch1"
 ENV DMWM_ARCH slc6_amd64_gcc493
 RUN sh ContainerScripts/installCMSBot.sh
-RUN sh ContainerScripts/installWMCore.sh
 
-RUN echo "Updating git again"
-RUN sh ContainerScripts/updateGit.sh
+#Finished
+
 ENTRYPOINT ["/bin/bash"]
-#ENTRYPOINT ["ContainerScripts/runSlice.sh"]
-#CMD ["0", "10"]
 
