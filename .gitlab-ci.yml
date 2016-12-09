@@ -34,7 +34,7 @@ build_wmcore_tests:
   variables:
     TO: $CI_REGISTRY_IMAGE:wmcore_tests # where to push resulting image
     CONTEXT_DIR: wmcore_tests
-    FROM: $CI_REGISTRY_IMAGE:cms_grid
+    FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
 build_wmcore_base:
   stage: build_wmcore_base
