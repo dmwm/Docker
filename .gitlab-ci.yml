@@ -1,6 +1,7 @@
 stages:
   - build_cms_grid
   - build_jenkins_python
+  - build_wmcore_base 
   - build_wmcore_tests
   
 build_cms_grid:
@@ -33,4 +34,14 @@ build_wmcore_tests:
   variables:
     TO: $CI_REGISTRY_IMAGE:wmcore_tests # where to push resulting image
     CONTEXT_DIR: wmcore_tests
+    FROM: $CI_REGISTRY_IMAGE:cms_grid
+
+build_wmcore_base:
+  stage: build_wmcore_base
+  tags:
+    - docker-image-build
+  script: "" # unused but this line is required by GitLab CI
+  variables:
+    TO: $CI_REGISTRY_IMAGE:wmcore_base # where to push resulting image
+    CONTEXT_DIR: wmcore_base
     FROM: $CI_REGISTRY_IMAGE:cms_grid
