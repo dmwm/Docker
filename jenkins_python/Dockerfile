@@ -14,7 +14,7 @@ RUN mkdir artifacts
 
 # Temporary
 
-#COPY pylintReport.json pylintReport.json
+COPY pylintReport.json pylintReport.json
 
 
 ENTRYPOINT ["scripts/AnalyzePylint.py"]
