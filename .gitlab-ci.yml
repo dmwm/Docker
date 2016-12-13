@@ -23,7 +23,7 @@ build_jenkins_python:
   variables:
     TO: $CI_REGISTRY_IMAGE:jenkins_python # where to push resulting image
     CONTEXT_DIR: jenkins_python
-    FROM: python:3
+    FROM: python:2
 
 
 build_wmcore_tests:
