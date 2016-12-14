@@ -67,14 +67,17 @@ def buildTestReport(templateEnv):
         print("Was not able to open list of unstable tests")
 
     for kind, directory in [('base', './MasterUnitTests/'), ('test', './LatestUnitTests/')]:
+        print("Scanning directory %s" % directory)
         for xunitFile in glob.iglob(directory + '*/nosetests-*.xml'):
-            ts, tr = xunitparser.parse(open(xunitFile))
-            for tc in ts:
-                testName = '%s:%s' % (tc.classname, tc.methodname)
-                if testName in testResults:
-                    testResults[testName].update({kind: tc.result})
-                else:
-                    testResults[testName] = {kind: tc.result}
+            print("Opening file %s" % xunitFile)
+            with open(xunitFile) as xf:
+                ts, tr = xunitparser.parse(xf)
+                for tc in ts:
+                    testName = '%s:%s' % (tc.classname, tc.methodname)
+                    if testName in testResults:
+                        testResults[testName].update({kind: tc.result})
+                    else:
+                        testResults[testName] = {kind: tc.result}
 
     failed = False
     errorConditions = ['error', 'failure']
@@ -119,7 +122,7 @@ def buildTestReport(templateEnv):
 
     unitTestSummary = {'newFailures': len(newFailures), 'added': len(added), 'deleted': len(deleted),
                        'okChanges': len(okChanges), 'unstableChanges': len(unstableChanges)}
-
+    print("Unit Test summary %s" % unitTestSummary)
     return failed, unitTestSummaryHTML, unitTestSummary
 
 
@@ -161,7 +164,7 @@ statusMap = {False: {'ghStatus': 'success', 'readStatus': 'succeeded'},
              True: {'ghStatus': 'failure', 'readStatus': 'failed'}, }
 
 message = 'Jenkins results:\n'
-message += ' * Unit tests: %s\n' % statusMap[failedPylint]['readStatus']
+message += ' * Unit tests: %s\n' % statusMap[failedUnitTests]['readStatus']
 if unitTestSummary['newFailures']:
     message += '   * %s new failures\n' % unitTestSummary['newFailures']
 if unitTestSummary['deleted']:
@@ -172,7 +175,7 @@ if unitTestSummary['added']:
     message += '   * %s tests added\n' % unitTestSummary['added']
 if unitTestSummary['unstableChanges']:
     message += '   * %s changes in unstable tests\n' % unitTestSummary['unstableChanges']
-message += ' * Pylint check: %s\n' % statusMap[failedUnitTests]['readStatus']
+message += ' * Pylint check: %s\n' % statusMap[failedPylint]['readStatus']
 message += "\nDetails at %s\n" % (reportURL)
 status = issue.create_comment(message)
 
