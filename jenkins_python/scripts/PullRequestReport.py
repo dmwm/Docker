@@ -130,13 +130,10 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
 
     html.write(unitTestSummary)
 
-print('Token ' + os.environ['DMWMBOT_TOKEN'][0:3])
-
 gh = Github(os.environ['DMWMBOT_TOKEN'])
 codeRepo = os.environ.get('CODE_REPO', 'WMCore')
 teamName = os.environ.get('WMCORE_REPO', 'dmwm')
 repoName = '%s/%s' % (teamName, codeRepo)
-
 
 issueID = None
 
@@ -149,18 +146,25 @@ elif 'TargetIssueID' in os.environ:
 
 repo = gh.get_repo(repoName)
 issue = repo.get_issue(int(issueID))
-print('RAW issue is %s' % issue)
-reportURL = os.environ['BUILD_URL'].replace('jenkins/job', 'jenkins/view/All/job') + '/artifact/artifacts/PullRequestReport.html'
+reportURL = os.environ['BUILD_URL'].replace('jenkins/job',
+                                            'jenkins/view/All/job') + 'artifact/artifacts/PullRequestReport.html'
 
-message = "TESTING: No changes to unit tests for pull request %s. Check %s for details\n" % (issueID, reportURL)
-print ('Message to be added is %s' % message)
-issue.create_comment('Testing')
+failedPylint = True
+failedUnitTests = False
+
+statusMap = {False: {'ghStatus': 'success', 'readStatus': 'succeeded'},
+             True: {'ghStatus': 'failure', 'readStatus': 'failed'}, }
+
+message = 'Jenkins results:\n'
+message += ' * Unit tests: %s\n' % statusMap[failedPylint]['readStatus']
+message += ' * Pylint check: %s\n' % statusMap[failedUnitTests]['readStatus']
+message += "\nDetails at %s\n" % (reportURL)
 status = issue.create_comment(message)
-print('Message status %s' % status)
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
-print('LastCommit %s' % lastCommit)
-lastCommit.create_status(state='success', target_url=reportURL, description='Set Jenkins', context='PyLint')
-lastCommit.create_status(state='failure', target_url=reportURL, description='Set Jenkins', context='Unittests')
+lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylint',
+                         description='Set by Jenkins', context='Pylint')
+lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
+                         description='Set by Jenkins', context='Unit tests')
 
 print("finished")
