@@ -154,10 +154,13 @@ reportURL = os.environ['BUILD_URL'] + '/artifact/artifacts/PullRequestReport.htm
 
 message = "TESTING: No changes to unit tests for pull request %s. Check %s for details\n" % (issueID, reportURL)
 print ('Message to be added is %s' % message)
+issue.create_comment('Testing')
 status = issue.create_comment(message)
 print('Message status %s' % status)
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
-
+print('LastCommit %s' % lastCommit)
 lastCommit.create_status(state='success', target_url=reportURL, description='Set Jenkins', context='PyLint')
 lastCommit.create_status(state='failure', target_url=reportURL, description='Set Jenkins', context='Unit tests')
+
+print("finished")
