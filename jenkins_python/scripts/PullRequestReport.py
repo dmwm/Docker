@@ -155,7 +155,7 @@ reportURL = os.environ['BUILD_URL'] + '/artifact/artifacts/PullRequestReport.htm
 message = "TESTING: No changes to unit tests for pull request %s. Check %s for details\n" % (issueID, reportURL)
 print ('Message to be added is %s' % message)
 status = issue.create_comment(message)
-print('Message status' % status)
+print('Message status %s' % status)
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
 
