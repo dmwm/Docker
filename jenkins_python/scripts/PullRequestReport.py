@@ -137,10 +137,6 @@ codeRepo = os.environ.get('CODE_REPO', 'WMCore')
 teamName = os.environ.get('WMCORE_REPO', 'dmwm')
 repoName = '%s/%s' % (teamName, codeRepo)
 
-print('Writing to repo %s' % repoName)
-
-import pdb
-#pdb.set_trace()
 
 issueID = None
 
@@ -151,12 +147,17 @@ elif 'TargetIssueID' in os.environ:
     issueID = os.environ['TargetIssueID']
     mode = 'Daily'
 
-print('IssueID is %s ' % issueID)
-
-issue = gh.get_repo(repoName).get_issue(int(issueID))
+repo = gh.get_repo(repoName)
+issue = repo.get_issue(int(issueID))
 print('RAW issue is %s' % issue)
 reportURL = os.environ['BUILD_URL'] + '/artifact/artifacts/PullRequestReport.html'
 
 message = "TESTING: No changes to unit tests for pull request %s. Check %s for details\n" % (issueID, reportURL)
 print ('Message to be added is %s' % message)
-issue.create_comment('%s' % message)
+status = issue.create_comment(message)
+print('Message status' % status)
+
+lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
+
+lastCommit.create_status(state='success', target_url=reportURL, description='Set Jenkins', context='PyLint')
+lastCommit.create_status(state='failure', target_url=reportURL, description='Set Jenkins', context='Unit tests')
