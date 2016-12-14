@@ -130,6 +130,22 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
 
     html.write(unitTestSummary)
 
-# gh = Github(os.environ['DMWMBOT_TOKEN'])
-# codeRepo = os.environ.get('CODE_REPO', 'WMCore')
-# repoName = '%s/%s' % (os.environ['WMCORE_REPO'], codeRepo)
+gh = Github(os.environ['DMWMBOT_TOKEN'])
+codeRepo = os.environ.get('CODE_REPO', 'WMCore')
+teamName = os.environ.get('WMCORE_REPO', 'dmwm')
+repoName = '%s/%s' % (teamName, codeRepo)
+issueID = None
+
+if 'ghprbPullId' in os.environ:
+    issueID = os.environ['ghprbPullId']
+    mode = 'PR'
+elif 'TargetIssueID' in os.environ:
+    issueID = os.environ['TargetIssueID']
+    mode = 'Daily'
+issue = gh.get_repo(repoName).get_issue(int(issueID))
+
+reportURL = os.environ['BUILD_URL'] + '/artifact/artifacts/PullRequestReport.html'
+
+message = "TESTING: No changes to unit tests for pull request %s. Check %s for details\n" % (issueID, reportURL)
+
+issue.create_comment('%s' % message)
