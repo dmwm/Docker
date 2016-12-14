@@ -28,7 +28,7 @@
         <h2>New failures of unit tests (must be resolved)</h2>
         <ul>
             {% for test in newFailures %}
-                <li>{{ test.name }} changed from {{ test.old }}) to {{ test.new }}</li>
+                <li>{{ test.name }} changed from {{ test.old }} to {{ test.new }}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -57,7 +57,7 @@
         <h2>Unstable unit tests changed (should be checked)</h2>
         <ul>
             {% for test in unstableChanges %}
-                <li>{{ test.name }} changed from {{ test.old }}) to {{ test.new }}</li>
+                <li>{{ test.name }} changed from {{ test.old }} to {{ test.new }}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -65,7 +65,7 @@
         <h2>Changed unit tests</h2>
         <ul>
             {% for test in okChanges %}
-                <li>{{ test.name }} changed from {{ test.old }}) to {{ test.new }}</li>
+                <li>{{ test.name }} changed from {{ test.old }} to {{ test.new }}</li>
             {% endfor %}
         </ul>
     {% endif %}

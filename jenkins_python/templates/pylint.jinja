@@ -1,5 +1,5 @@
-{% macro line_report(line, severity, code, module, message) -%}
-    {%- if severity in ['W', 'E'] %}
+{% macro line_report(line, severity, code, module, message, okWarnings) -%}
+    {%- if severity in ['W', 'E'] and code not in okWarnings %}
         <b>
     {%- endif %}
     {%- if module %}
@@ -7,7 +7,7 @@
     {%- else %}
         {{ severity }}{{ code }}, line {{ line }}: {{ message }}
     {%- endif %}
-    {%- if severity in ['W', 'E'] %}
+    {%- if severity in ['W', 'E']  and code not in okWarnings %}
         </b>
     {%- endif %}
 {%- endmacro %}
@@ -21,7 +21,7 @@
             {% for severity in ['E', 'W', 'R', 'C', 'I'] %} {# EWRCI #}
                 {% for event in report[filename]['test']['events'] %}
                     {% if event[1] == severity %}
-                        <li>{{ line_report(event[0], event[1], event[2], event[3], event[4]) }}</li>
+                        <li>{{ line_report(event[0], event[1], event[2], event[3], event[4], okWarnings) }}</li>
                     {% endif %}
                 {% endfor %}
             {% endfor %}

@@ -5,6 +5,7 @@ from __future__ import print_function
 import glob
 import json
 import os
+import time
 
 import jinja2
 import xunitparser
@@ -15,7 +16,7 @@ pylintReportFile = 'pylint.jinja'
 pylintSummaryFile = 'pylintSummary.jinja'
 unitTestSummaryFile = 'unitTestReport.jinja'
 
-reportWarnings = ['0611', '0612', '0613']
+okWarnings = ['0511', '0703']
 
 summaryMessage = ''
 longMessage = ''
@@ -33,6 +34,7 @@ def buildPylintReport(templateEnv):
         # Process the template to produce our final text.
         pylintReport = pylintReportTemplate.render({'report': report,
                                                     'filenames': sorted(report.keys()),
+                                                    'okWarnings': okWarnings,
                                                     })
         pylintSummary = pylintSummaryTemplate.render({'report': report,
                                                       'filenames': sorted(report.keys()),
@@ -43,7 +45,7 @@ def buildPylintReport(templateEnv):
     failed = False
     for filename in report.keys():
         for event in report[filename]['test']['events']:
-            if event[1] in ['W', 'E']:
+            if event[1] in ['W', 'E'] and event[2] not in okWarnings:
                 failed = True
 
         if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
@@ -181,6 +183,6 @@ status = issue.create_comment(message)
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
 lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylint',
-                         description='Set by Jenkins', context='Pylint')
+                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M"), context='Pylint')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
-                         description='Set by Jenkins', context='Unit tests')
+                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M"), context='Unit tests')
