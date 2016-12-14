@@ -109,16 +109,18 @@ def buildTestReport(templateEnv):
     stableChanged = newFailures or added or deleted or okChanges
 
     unitTestSummaryTemplate = templateEnv.get_template(unitTestSummaryFile)
+    unitTestSummaryHTML = unitTestSummaryTemplate.render({'newFailures': newFailures,
+                                                          'added': added,
+                                                          'deleted': deleted,
+                                                          'unstableChanges': unstableChanges,
+                                                          'okChanges': okChanges,
+                                                          'errorConditions': errorConditions,
+                                                          })
 
-    unitTestSummary = unitTestSummaryTemplate.render({'newFailures': newFailures,
-                                                      'added': added,
-                                                      'deleted': deleted,
-                                                      'unstableChanges': unstableChanges,
-                                                      'okChanges': okChanges,
-                                                      'errorConditions': errorConditions,
-                                                      })
+    unitTestSummary = {'newFailures': len(newFailures), 'added': len(added), 'deleted': len(deleted),
+                       'okChanges': len(okChanges), 'unstableChanges': len(unstableChanges)}
 
-    return failed, unitTestSummary
+    return failed, unitTestSummaryHTML, unitTestSummary
 
 
 templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
@@ -132,9 +134,9 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
     html.write(pylintSummary)
     html.write(pylintReport)
 
-    failedUnitTests, unitTestSummary = buildTestReport(templateEnv)
+    failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
 
-    html.write(unitTestSummary)
+    html.write(unitTestSummaryHTML)
 
 gh = Github(os.environ['DMWMBOT_TOKEN'])
 codeRepo = os.environ.get('CODE_REPO', 'WMCore')
@@ -155,14 +157,21 @@ issue = repo.get_issue(int(issueID))
 reportURL = os.environ['BUILD_URL'].replace('jenkins/job',
                                             'jenkins/view/All/job') + 'artifact/artifacts/PullRequestReport.html'
 
-failedPylint = True
-failedUnitTests = False
-
 statusMap = {False: {'ghStatus': 'success', 'readStatus': 'succeeded'},
              True: {'ghStatus': 'failure', 'readStatus': 'failed'}, }
 
 message = 'Jenkins results:\n'
 message += ' * Unit tests: %s\n' % statusMap[failedPylint]['readStatus']
+if unitTestSummary['newFailures']:
+    message += '   * %s new failures\n' % unitTestSummary['newFailures']
+if unitTestSummary['deleted']:
+    message += '   * %s tests deleted\n' % unitTestSummary['deleted']
+if unitTestSummary['okChanges']:
+    message += '   * %s tests no longer failing\n' % unitTestSummary['okChanges']
+if unitTestSummary['added']:
+    message += '   * %s tests added\n' % unitTestSummary['added']
+if unitTestSummary['unstableChanges']:
+    message += '   * %s changes in unstable tests\n' % unitTestSummary['unstableChanges']
 message += ' * Pylint check: %s\n' % statusMap[failedUnitTests]['readStatus']
 message += "\nDetails at %s\n" % (reportURL)
 status = issue.create_comment(message)
@@ -172,5 +181,3 @@ lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=r
                          description='Set by Jenkins', context='Pylint')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
                          description='Set by Jenkins', context='Unit tests')
-
-print("finished")
