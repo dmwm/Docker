@@ -186,3 +186,13 @@ lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=r
                          description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M"), context='Pylint')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
                          description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M"), context='Unit tests')
+
+if failedPylint:
+    print('Testing of python code. DMWM-FAIL-PYLINT')
+else:
+    print('Testing of python code. DMWM-SUCCEED-PYLINT')
+
+if failedUnitTests:
+    print('Testing of python code. DMWM-FAIL-UNIT')
+else:
+    print('Testing of python code. DMWM-SUCCEED-UNIT')
