@@ -24,7 +24,7 @@ failed = False
 
 
 def buildPylintReport(templateEnv):
-    with open('pylintReport.json', 'r') as reportFile:
+    with open('LatestPylint/pylintReport.json', 'r') as reportFile:
         report = json.load(reportFile)
 
         pylintReportTemplate = templateEnv.get_template(pylintReportFile)
