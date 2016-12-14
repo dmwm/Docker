@@ -47,12 +47,12 @@ def buildPylintReport(templateEnv):
         for event in report[filename]['test']['events']:
             if event[1] in ['W', 'E'] and event[2] not in okWarnings:
                 failed = True
-
-        if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
-                                                                 float(report[filename]['test'].get('score', 0))):
-            failed = True
-        elif float(report[filename]['test']['score']) < 8:
-            failed = True
+        if report[filename]['test'].get('score', None):
+            if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
+                                                                 float(report[filename]['base'].get('score', 0))):
+                failed = True
+            elif float(report[filename]['test']['score']) < 8:
+                failed = True
 
     return failed, pylintSummary, pylintReport
 
