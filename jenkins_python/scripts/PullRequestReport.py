@@ -130,10 +130,16 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
 
     html.write(unitTestSummary)
 
+print(os.environ['DMWMBOT_TOKEN'][0:3])
+
 gh = Github(os.environ['DMWMBOT_TOKEN'])
 codeRepo = os.environ.get('CODE_REPO', 'WMCore')
 teamName = os.environ.get('WMCORE_REPO', 'dmwm')
 repoName = '%s/%s' % (teamName, codeRepo)
+
+import pdb
+#pdb.set_trace()
+
 issueID = None
 
 if 'ghprbPullId' in os.environ:
