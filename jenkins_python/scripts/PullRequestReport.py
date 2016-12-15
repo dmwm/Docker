@@ -178,9 +178,9 @@ status = issue.create_comment(message)
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
 lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylint',
-                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M CEDT"), context='Pylint')
+                         description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Pylint')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
-                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M CEDT"), context='Unit tests')
+                         description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Unit tests')
 
 if failedPylint:
     print('Testing of python code. DMWM-FAIL-PYLINT')
