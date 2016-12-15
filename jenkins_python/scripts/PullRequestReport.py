@@ -33,15 +33,24 @@ def buildPylintReport(templateEnv):
 
         # Process the template to produce our final text.
         pylintReport = pylintReportTemplate.render({'report': report, 'okWarnings': okWarnings})
-        pylintSummary = pylintSummaryTemplate.render({'report': report, 'filenames': sorted(report.keys())})
+        pylintSummaryHTML = pylintSummaryTemplate.render({'report': report, 'filenames': sorted(report.keys())})
 
     # Figure out if pylint failed
 
     failed = False
+    failures = 0
+    warnings = 0
+    comments = 0
+
     for filename in report.keys():
         for event in report[filename]['test']['events']:
             if event[1] in ['W', 'E'] and event[2] not in okWarnings:
                 failed = True
+                failures += 1
+            elif event[1] in ['W', 'E']:
+                warnings += 1
+            else:
+                comments += 1
         if report[filename]['test'].get('score', None):
             if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
                                                                      float(report[filename]['base'].get('score', 0))):
@@ -49,7 +58,9 @@ def buildPylintReport(templateEnv):
             elif float(report[filename]['test']['score']) < 8:
                 failed = True
 
-    return failed, pylintSummary, pylintReport
+    pylintSummary = {'failures': failures, 'warnings': warnings, 'comments': comments}
+
+    return failed, pylintSummaryHTML, pylintReport, pylintSummary
 
 
 def buildTestReport(templateEnv):
@@ -130,8 +141,8 @@ failedPylint = False
 failedUnitTests = False
 
 with open('artifacts/PullRequestReport.html', 'w') as html:
-    failedPylint, pylintSummary, pylintReport = buildPylintReport(templateEnv)
-    html.write(pylintSummary)
+    failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
+    html.write(pylintSummaryHTML)
     html.write(pylintReport)
 
     failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
@@ -172,7 +183,15 @@ if unitTestSummary['added']:
     message += '   * %s tests added\n' % unitTestSummary['added']
 if unitTestSummary['unstableChanges']:
     message += '   * %s changes in unstable tests\n' % unitTestSummary['unstableChanges']
+
 message += ' * Pylint check: %s\n' % statusMap[failedPylint]['readStatus']
+if pylintSummary['failures']:
+    message += '   * %s warnings and errors that must be fixed\n' % pylintSummary['failures']
+if pylintSummary['warnings']:
+    message += '   * %s warnings\n' % pylintSummary['warnings']
+if pylintSummary['comments']:
+    message += '   * %s comments to review\n' % pylintSummary['comments']
+
 message += "\nDetails at %s\n" % (reportURL)
 status = issue.create_comment(message)
 
