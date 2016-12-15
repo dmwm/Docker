@@ -34,11 +34,11 @@
 <a name="pylint"/>
 <h1 id="pylint">Summary of pylint report</h1>
 <ul>
-    {% for filename in filenames %}
-        {% if report[filename].base %}
-            {{ score_report(filename, report[filename].test.score, report[filename].base.score) }}
+    {% for filename, filereport in report|dictsort %}
+        {% if filereport.base %}
+            {{ score_report(filename, filereport.test.score, filereport.base.score) }}
         {% else %}
-            {{ score_report(filename, report[filename].test.score) }}
+            {{ score_report(filename, filereport.test.score) }}
         {% endif %}
     {% endfor %}
 </ul>
