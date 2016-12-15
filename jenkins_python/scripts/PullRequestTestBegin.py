@@ -27,4 +27,4 @@ reportURL = os.environ['BUILD_URL']
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
 lastCommit.create_status(state='pending', target_url=reportURL,
-                         description='Tests started by Jenkins at ' + time.strftime("%d %b %Y %H:%M"))
+                         description='Tests started at ' + time.strftime("%d %b %Y %H:%M CEDT"))
