@@ -15,11 +15,11 @@
 
 <h1>Warnings from pylint by file and severity</h1>
 <ul>
-    {% for filename in filenames %}
+    {% for filename, filereport in report|dictsort %}
         <li>{{ filename }}</li>
         <ul>
             {% for severity in ['E', 'W', 'R', 'C', 'I'] %} {# EWRCI #}
-                {% for event in report[filename]['test']['events'] %}
+                {% for event in filereport['test']['events'] %}
                     {% if event[1] == severity %}
                         <li>{{ line_report(event[0], event[1], event[2], event[3], event[4], okWarnings) }}</li>
                     {% endif %}

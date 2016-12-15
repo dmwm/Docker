@@ -16,7 +16,7 @@ pylintReportFile = 'pylint.jinja'
 pylintSummaryFile = 'pylintSummary.jinja'
 unitTestSummaryFile = 'unitTestReport.jinja'
 
-okWarnings = ['0511', '0703']
+okWarnings = ['0511', '0703', '0613']
 
 summaryMessage = ''
 longMessage = ''
@@ -32,13 +32,8 @@ def buildPylintReport(templateEnv):
         pylintSummaryTemplate = templateEnv.get_template(pylintSummaryFile)
 
         # Process the template to produce our final text.
-        pylintReport = pylintReportTemplate.render({'report': report,
-                                                    'filenames': sorted(report.keys()),
-                                                    'okWarnings': okWarnings,
-                                                    })
-        pylintSummary = pylintSummaryTemplate.render({'report': report,
-                                                      'filenames': sorted(report.keys()),
-                                                      })
+        pylintReport = pylintReportTemplate.render({'report': report, 'okWarnings': okWarnings})
+        pylintSummary = pylintSummaryTemplate.render({'report': report, 'filenames': sorted(report.keys())})
 
     # Figure out if pylint failed
 
@@ -49,7 +44,7 @@ def buildPylintReport(templateEnv):
                 failed = True
         if report[filename]['test'].get('score', None):
             if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
-                                                                 float(report[filename]['base'].get('score', 0))):
+                                                                     float(report[filename]['base'].get('score', 0))):
                 failed = True
             elif float(report[filename]['test']['score']) < 8:
                 failed = True
@@ -183,9 +178,9 @@ status = issue.create_comment(message)
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
 lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylint',
-                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M"), context='Pylint')
+                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M CEDT"), context='Pylint')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
-                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M"), context='Unit tests')
+                         description='Set by Jenkins at ' + time.strftime("%d %b %Y %H:%M CEDT"), context='Unit tests')
 
 if failedPylint:
     print('Testing of python code. DMWM-FAIL-PYLINT')
