@@ -19,13 +19,14 @@
         <li>{{ filename }}</li>
         <ul>
             {% for severity in ['E', 'W', 'R', 'C', 'I'] %} {# EWRCI #}
-                {% for event in filereport['test']['events'] %}
-                    {% if event[1] == severity %}
-                        <li>{{ line_report(event[0], event[1], event[2], event[3], event[4], okWarnings) }}</li>
-                    {% endif %}
-                {% endfor %}
+                {% if 'test' in filereport %}
+                    {% for event in filereport['test']['events'] %}
+                        {% if event[1] == severity %}
+                            <li>{{ line_report(event[0], event[1], event[2], event[3], event[4], okWarnings) }}</li>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
             {% endfor %}
         </ul>
     {% endfor %}
 </ul>
-
