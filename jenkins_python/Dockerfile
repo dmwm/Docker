@@ -2,9 +2,9 @@ FROM python:2
 
 # Add the extra python libraries we need
 
-RUN pip install Jinja2
-RUN pip install PyGithub
-RUN pip install xunitparser
+RUN pip --no-cache-dir install Jinja2
+RUN pip --no-cache-dir install PyGithub
+RUN pip --no-cache-dir install xunitparser
 
 RUN mkdir artifacts
 
