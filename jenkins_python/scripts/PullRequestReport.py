@@ -43,20 +43,21 @@ def buildPylintReport(templateEnv):
     comments = 0
 
     for filename in report.keys():
-        for event in report[filename]['test']['events']:
-            if event[1] in ['W', 'E'] and event[2] not in okWarnings:
-                failed = True
-                failures += 1
-            elif event[1] in ['W', 'E']:
-                warnings += 1
-            else:
-                comments += 1
-        if report[filename]['test'].get('score', None):
-            if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
-                                                                     float(report[filename]['base'].get('score', 0))):
-                failed = True
-            elif float(report[filename]['test']['score']) < 8:
-                failed = True
+        if 'test' in report[filename]:
+            for event in report[filename]['test']['events']:
+                if event[1] in ['W', 'E'] and event[2] not in okWarnings:
+                    failed = True
+                    failures += 1
+                elif event[1] in ['W', 'E']:
+                    warnings += 1
+                else:
+                    comments += 1
+            if report[filename]['test'].get('score', None):
+                if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
+                                                                         float(report[filename]['base'].get('score', 0))):
+                    failed = True
+                elif float(report[filename]['test']['score']) < 8:
+                    failed = True
 
     pylintSummary = {'failures': failures, 'warnings': warnings, 'comments': comments}
 
