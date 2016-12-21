@@ -15,6 +15,7 @@ from github import Github
 pylintReportFile = 'pylint.jinja'
 pylintSummaryFile = 'pylintSummary.jinja'
 unitTestSummaryFile = 'unitTestReport.jinja'
+py27SummaryFile = 'py27Summary.jinja'
 
 okWarnings = ['0511', '0703', '0613']
 
@@ -134,12 +135,50 @@ def buildTestReport(templateEnv):
     print("Unit Test summary %s" % unitTestSummary)
     return failed, unitTestSummaryHTML, unitTestSummary
 
+def buildPy27Report(templateEnv):
+    py27Summary = {}
+    failed = False
+
+    try:  
+        with open('added.message', 'r') as messageFile:
+            lines = messageFile.readlines()
+        
+            if len(lines):
+                py27Summary['added.message']=lines
+                failed = True
+    except:
+        print("Was not able to open file added.message")
+
+    try:    
+        with open('test.patch', 'r') as patchFile:
+            lines = patchFile.readlines()
+        
+            if len(lines):
+                py27Summary['test.patch']=lines
+                failed = True
+    except:
+        print("Was not able to open file test.patch")
+
+    try:
+        with open('idioms.patch', 'r') as patchFile:
+            lines = patchFile.readlines()
+        
+            if len(lines):
+                py27Summary['idioms.patch']=lines
+    except:
+        print("Was not able to open file idioms.patch")
+
+    py27SummaryTemplate = templateEnv.get_template(py27SummaryFile)
+    py27SummaryHTML = py27SummaryTemplate.render({'report': py27Summary, 'filenames': sorted(py27Summary.keys())})
+
+    return failed, py27Summary, py27SummaryHTML
 
 templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
 templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
 
 failedPylint = False
 failedUnitTests = False
+failedPy27 = False
 
 with open('artifacts/PullRequestReport.html', 'w') as html:
     failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
@@ -149,6 +188,10 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
     failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
 
     html.write(unitTestSummaryHTML)
+
+    failedPy27, py27Summary, py27SummaryHTML = buildPy27Report(templateEnv)
+
+    html.write(py27SummaryHTML)
 
 gh = Github(os.environ['DMWMBOT_TOKEN'])
 codeRepo = os.environ.get('CODE_REPO', 'WMCore')
@@ -193,6 +236,13 @@ if pylintSummary['warnings']:
 if pylintSummary['comments']:
     message += '   * %s comments to review\n' % pylintSummary['comments']
 
+message += ' * Py27 checks: %s\n' % statusMap[failedPy27]['readStatus']
+if failedPy27:
+    message += '   * fails python3 compatibility test\n '
+if py27Summary['idioms.patch']:
+    message += '   * there are suggested fixes for newer python3 idioms\n '
+
+
 message += "\nDetails at %s\n" % (reportURL)
 status = issue.create_comment(message)
 
@@ -201,6 +251,9 @@ lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=r
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Pylint')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Unit tests')
+lastCommit.create_status(state=statusMap[failedPy27]['ghStatus'], target_url=reportURL + '#pyfuture',
+                         description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Python3 compatibility')
+
 
 if failedPylint:
     print('Testing of python code. DMWM-FAIL-PYLINT')
@@ -211,3 +264,10 @@ if failedUnitTests:
     print('Testing of python code. DMWM-FAIL-UNIT')
 else:
     print('Testing of python code. DMWM-SUCCEED-UNIT')
+
+if failedPy27:
+    print('Testing of python code. DMWM-FAIL-PY27')
+else:
+    print('Testing of python code. DMWM-SUCCEED-PY27')
+
+
