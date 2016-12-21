@@ -245,7 +245,7 @@ if pylintSummary['comments']:
 message += ' * Python3 compatibility checks: %s\n' % statusMap[failedPy27]['readStatus']
 if failedPy27:
     message += '   * fails python3 compatibility test\n '
-if py27Summary['idioms.patch']:
+if 'idioms.patch' in py27Summary and py27Summary['idioms.patch']:
     message += '   * there are suggested fixes for newer python3 idioms\n '
 
 
