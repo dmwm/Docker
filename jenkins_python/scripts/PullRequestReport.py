@@ -142,9 +142,11 @@ def buildPy27Report(templateEnv):
     try:  
         with open('added.message', 'r') as messageFile:
             lines = messageFile.readlines()
-        
             if len(lines):
-                py27Summary['added.message']=lines
+                lt=[l.strip() for l in lines]
+                lt1=[l for l in lt if l]
+                lt2=[l.replace("*","") for l in lt1]
+                py27Summary['added.message']=lt2
                 failed = True
     except:
         print("Was not able to open file added.message")
@@ -152,9 +154,11 @@ def buildPy27Report(templateEnv):
     try:    
         with open('test.patch', 'r') as patchFile:
             lines = patchFile.readlines()
-        
             if len(lines):
-                py27Summary['test.patch']=lines
+                lt=[l.strip() for l in lines]
+                lt1=[l for l in lt if l]
+                lt2=[l.replace("*","") for l in lt1]
+                py27Summary['test.patch']=lt2
                 failed = True
     except:
         print("Was not able to open file test.patch")
@@ -162,9 +166,11 @@ def buildPy27Report(templateEnv):
     try:
         with open('idioms.patch', 'r') as patchFile:
             lines = patchFile.readlines()
-        
             if len(lines):
-                py27Summary['idioms.patch']=lines
+                lt=[l.strip() for l in lines]
+                lt1=[l for l in lt if l]
+                lt2=[l.replace("*","") for l in lt1]
+                py27Summary['idioms.patch']=lt2
     except:
         print("Was not able to open file idioms.patch")
 
@@ -236,7 +242,7 @@ if pylintSummary['warnings']:
 if pylintSummary['comments']:
     message += '   * %s comments to review\n' % pylintSummary['comments']
 
-message += ' * Py27 checks: %s\n' % statusMap[failedPy27]['readStatus']
+message += ' * Python3 compatibility checks: %s\n' % statusMap[failedPy27]['readStatus']
 if failedPy27:
     message += '   * fails python3 compatibility test\n '
 if py27Summary['idioms.patch']:
