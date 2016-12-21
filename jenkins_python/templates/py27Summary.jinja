@@ -5,8 +5,8 @@
             <h2> Imports for Python3 compatability missing in new files. Please fix this: </h2>
             <ul>
                 {% for report in reportlist %}
-                    <li> report </li>
-                {% endfor} 
+                    <li> {{ report }}</li>
+                {% endfor %} 
             </ul>
         <br><br>
         {% endif %}
@@ -14,8 +14,8 @@
             <h2> Pre-python 2.6 constructs are introduced by this pull request. This must be fixed. Suggested patch follows: </h2>
             <ul>
                 {% for report in reportlist %}
-                    <li> report </li>
-                {% endfor} 
+                    <li> {{ report }} </li>
+                {% endfor %} 
             </ul>
             <br><br>
         {% endif %}
@@ -23,8 +23,8 @@
             <h2> Pre-python 2.6 idioms found in changed files. Please consider updating the code. Suggested patch follows: </h2>
             <ul>
                 {% for report in reportlist %}
-                    <li> report </li>
-                {% endfor} 
+                    <li>{{ report }}</li>
+                {% endfor %} 
             </ul>
             <br><br>
         {% endif %}
