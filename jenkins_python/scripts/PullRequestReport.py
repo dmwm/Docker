@@ -15,7 +15,7 @@ from github import Github
 pylintReportFile = 'pylint.jinja'
 pylintSummaryFile = 'pylintSummary.jinja'
 unitTestSummaryFile = 'unitTestReport.jinja'
-py27SummaryFile = 'py27Summary.jinja'
+pyfutureSummaryFile = 'pyfutureSummary.jinja'
 
 okWarnings = ['0511', '0703', '0613']
 
@@ -135,56 +135,50 @@ def buildTestReport(templateEnv):
     print("Unit Test summary %s" % unitTestSummary)
     return failed, unitTestSummaryHTML, unitTestSummary
 
-def buildPy27Report(templateEnv):
-    py27Summary = {}
+def buildPyFutureReport(templateEnv):
+    pyfutureSummary = {}
     failed = False
 
     try:  
-        with open('added.message', 'r') as messageFile:
+        with open('LatestFuturize/added.message', 'r') as messageFile:
             lines = messageFile.readlines()
             if len(lines):
                 lt=[l.strip() for l in lines]
                 lt1=[l for l in lt if l]
                 lt2=[l.replace("*","") for l in lt1]
-                py27Summary['added.message']=lt2
+                pyfutureSummary['added.message']=lt2
                 failed = True
     except:
         print("Was not able to open file added.message")
 
     try:    
-        with open('test.patch', 'r') as patchFile:
+        with open('LatestFuturize/test.patch', 'r') as patchFile:
             lines = patchFile.readlines()
             if len(lines):
-                lt=[l.strip() for l in lines]
-                lt1=[l for l in lt if l]
-                lt2=[l.replace("*","") for l in lt1]
-                py27Summary['test.patch']=lt2
+                pyfutureSummary['test.patch']=lines
                 failed = True
     except:
         print("Was not able to open file test.patch")
 
     try:
-        with open('idioms.patch', 'r') as patchFile:
+        with open('LatestFuturize/idioms.patch', 'r') as patchFile:
             lines = patchFile.readlines()
             if len(lines):
-                lt=[l.strip() for l in lines]
-                lt1=[l for l in lt if l]
-                lt2=[l.replace("*","") for l in lt1]
-                py27Summary['idioms.patch']=lt2
+                pyfutureSummary['idioms.patch']=lines
     except:
         print("Was not able to open file idioms.patch")
 
-    py27SummaryTemplate = templateEnv.get_template(py27SummaryFile)
-    py27SummaryHTML = py27SummaryTemplate.render({'report': py27Summary, 'filenames': sorted(py27Summary.keys())})
+    pyfutureSummaryTemplate = templateEnv.get_template(pyfutureSummaryFile)
+    pyfutureSummaryHTML = pyfutureSummaryTemplate.render({'report': pyfutureSummary, 'filenames': sorted(pyfutureSummary.keys())})
 
-    return failed, py27Summary, py27SummaryHTML
+    return failed, pyfutureSummary, pyfutureSummaryHTML
 
 templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
 templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
 
 failedPylint = False
 failedUnitTests = False
-failedPy27 = False
+failedPyFuture = False
 
 with open('artifacts/PullRequestReport.html', 'w') as html:
     failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
@@ -195,9 +189,9 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
 
     html.write(unitTestSummaryHTML)
 
-    failedPy27, py27Summary, py27SummaryHTML = buildPy27Report(templateEnv)
+    failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
 
-    html.write(py27SummaryHTML)
+    html.write(pyfutureSummaryHTML)
 
 gh = Github(os.environ['DMWMBOT_TOKEN'])
 codeRepo = os.environ.get('CODE_REPO', 'WMCore')
@@ -242,10 +236,10 @@ if pylintSummary['warnings']:
 if pylintSummary['comments']:
     message += '   * %s comments to review\n' % pylintSummary['comments']
 
-message += ' * Python3 compatibility checks: %s\n' % statusMap[failedPy27]['readStatus']
-if failedPy27:
+message += ' * Python3 compatibility checks: %s\n' % statusMap[failedPyFuture]['readStatus']
+if failedPyFuture:
     message += '   * fails python3 compatibility test\n '
-if 'idioms.patch' in py27Summary and py27Summary['idioms.patch']:
+if 'idioms.patch' in pyfutureSummary and pyfutureSummary['idioms.patch']:
     message += '   * there are suggested fixes for newer python3 idioms\n '
 
 
@@ -257,7 +251,7 @@ lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=r
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Pylint')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Unit tests')
-lastCommit.create_status(state=statusMap[failedPy27]['ghStatus'], target_url=reportURL + '#pyfuture',
+lastCommit.create_status(state=statusMap[failedPyFuture]['ghStatus'], target_url=reportURL + '#pyfuture',
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Python3 compatibility')
 
 
@@ -271,7 +265,7 @@ if failedUnitTests:
 else:
     print('Testing of python code. DMWM-SUCCEED-UNIT')
 
-if failedPy27:
+if failedPyFuture:
     print('Testing of python code. DMWM-FAIL-PY27')
 else:
     print('Testing of python code. DMWM-SUCCEED-PY27')
