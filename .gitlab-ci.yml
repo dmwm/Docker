@@ -8,7 +8,8 @@ build_cms_grid:
   stage: build_cms_grid
   tags:
     - docker-image-build
-  #script: "" # unused but this line is required by GitLab CI
+  script:
+    - docker build -t cms_grid .
   variables:
     TO: $CI_REGISTRY_IMAGE:cms_grid # where to push resulting image
     CONTEXT_DIR: cms_grid
@@ -19,7 +20,8 @@ build_jenkins_python:
   stage: build_jenkins_python
   tags:
     - docker-image-build
-  #script: "" # unused but this line is required by GitLab CI
+  script:
+    - docker build -t jenkins_python .
   variables:
     TO: $CI_REGISTRY_IMAGE:jenkins_python # where to push resulting image
     CONTEXT_DIR: jenkins_python
@@ -30,7 +32,8 @@ build_wmcore_tests:
   stage: build_wmcore_tests
   tags:
     - docker-image-build
-  #script: "" # unused but this line is required by GitLab CI
+  script:
+    - docker build -t wmcore_tests .
   variables:
     TO: $CI_REGISTRY_IMAGE:wmcore_tests # where to push resulting image
     CONTEXT_DIR: wmcore_tests
@@ -40,7 +43,8 @@ build_wmcore_base:
   stage: build_wmcore_base
   tags:
     - docker-image-build
-  #script: "" # unused but this line is required by GitLab CI
+  script:
+    - docker build -t wmcore_base .
   variables:
     TO: $CI_REGISTRY_IMAGE:wmcore_base # where to push resulting image
     CONTEXT_DIR: wmcore_base
