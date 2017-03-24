@@ -55,7 +55,7 @@ def buildPylintReport(templateEnv):
                     comments += 1
             if report[filename]['test'].get('score', None):
                 if float(report[filename]['test']['score']) < 9 and (float(report[filename]['test']['score']) <
-                                                                         float(report[filename]['base'].get('score', 0))):
+                                                                     float(report[filename]['base'].get('score', 0))):
                     failed = True
                 elif float(report[filename]['test']['score']) < 8:
                     failed = True
@@ -135,27 +135,28 @@ def buildTestReport(templateEnv):
     print("Unit Test summary %s" % unitTestSummary)
     return failed, unitTestSummaryHTML, unitTestSummary
 
+
 def buildPyFutureReport(templateEnv):
     pyfutureSummary = {}
     failed = False
 
-    try:  
+    try:
         with open('LatestFuturize/added.message', 'r') as messageFile:
             lines = messageFile.readlines()
             if len(lines):
-                lt=[l.strip() for l in lines]
-                lt1=[l for l in lt if l]
-                lt2=[l.replace("*","") for l in lt1]
-                pyfutureSummary['added.message']=lt2
+                lt = [l.strip() for l in lines]
+                lt1 = [l for l in lt if l]
+                lt2 = [l.replace("*", "") for l in lt1]
+                pyfutureSummary['added.message'] = lt2
                 failed = True
     except:
         print("Was not able to open file added.message")
 
-    try:    
+    try:
         with open('LatestFuturize/test.patch', 'r') as patchFile:
             lines = patchFile.readlines()
             if len(lines):
-                pyfutureSummary['test.patch']=lines
+                pyfutureSummary['test.patch'] = lines
                 failed = True
     except:
         print("Was not able to open file test.patch")
@@ -164,14 +165,16 @@ def buildPyFutureReport(templateEnv):
         with open('LatestFuturize/idioms.patch', 'r') as patchFile:
             lines = patchFile.readlines()
             if len(lines):
-                pyfutureSummary['idioms.patch']=lines
+                pyfutureSummary['idioms.patch'] = lines
     except:
         print("Was not able to open file idioms.patch")
 
     pyfutureSummaryTemplate = templateEnv.get_template(pyfutureSummaryFile)
-    pyfutureSummaryHTML = pyfutureSummaryTemplate.render({'report': pyfutureSummary, 'filenames': sorted(pyfutureSummary.keys())})
+    pyfutureSummaryHTML = pyfutureSummaryTemplate.render(
+        {'report': pyfutureSummary, 'filenames': sorted(pyfutureSummary.keys())})
 
     return failed, pyfutureSummary, pyfutureSummaryHTML
+
 
 templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
 templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
@@ -182,15 +185,12 @@ failedPyFuture = False
 
 with open('artifacts/PullRequestReport.html', 'w') as html:
     failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
-    html.write(pylintSummaryHTML)
-    html.write(pylintReport)
-
     failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
-
-    html.write(unitTestSummaryHTML)
-
     failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
 
+    html.write(unitTestSummaryHTML)
+    html.write(pylintSummaryHTML)
+    html.write(pylintReport)
     html.write(pyfutureSummaryHTML)
 
 gh = Github(os.environ['DMWMBOT_TOKEN'])
@@ -242,8 +242,7 @@ if failedPyFuture:
 if 'idioms.patch' in pyfutureSummary and pyfutureSummary['idioms.patch']:
     message += '   * there are suggested fixes for newer python3 idioms\n '
 
-
-message += "\nDetails at %s\n" % (reportURL)
+message += "\nDetails at %s\n" % reportURL
 status = issue.create_comment(message)
 
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
@@ -252,8 +251,8 @@ lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=r
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Unit tests')
 lastCommit.create_status(state=statusMap[failedPyFuture]['ghStatus'], target_url=reportURL + '#pyfuture',
-                         description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Python3 compatibility')
-
+                         description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"),
+                         context='Python3 compatibility')
 
 if failedPylint:
     print('Testing of python code. DMWM-FAIL-PYLINT')
@@ -269,5 +268,3 @@ if failedPyFuture:
     print('Testing of python code. DMWM-FAIL-PY27')
 else:
     print('Testing of python code. DMWM-SUCCEED-PY27')
-
-
