@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-if [ -z "$DMWMBOT_TOKEN" -o -z "$WMCORE_REPO" -o -z "$CODE_REPO" ]; then
+if [ -z "$DMWMBOT_TOKEN" -o -z "$WMCORE_REPO" -o -z "$CODE_REPO" -o -z "$TAG_PREFIX" ]; then
   echo "Not all necessary environment variables set: DMWMBOT_TOKEN, WMCORE_REPO, CODE_REPO"
+  exit 1
 fi
   
 pushd /home/dmwm/wmcore_unittest/WMCore/
