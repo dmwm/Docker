@@ -5,13 +5,19 @@ if [ -z "$ghprbPullId" -o -z "$ghprbTargetBranch" ]; then
   exit 1
 fi
 
+source ./env_unittest.sh
+
 pushd wmcore_unittest/WMCore
 export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:$PYTHONPATH
 
 #git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/heads/*:refs/remotes/origin/*"
 git config remote.origin.url https://github.com/dmwm/WMCore.git
-#git config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/pull/*:refs/remotes/origin/pr/${ghprbPullId}*"
+git config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+
+git fetch --tags  https://github.com/dmwm/WMCore.git "origin/pr/${ghprbPullId}" || true
+git fetch --tags  https://github.com/dmwm/WMCore.git "origin/pr/${ghprbPullId}/merge" || true
+git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/pull/*:refs/remotes/origin/pr/${ghprbPullId}" || true
+git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/pull/*:refs/remotes/origin/pr/${ghprbPullId}/merge" || true
 export COMMIT=`git rev-parse "origin/pr/$ghprbPullId/merge^{commit}"`
 git checkout ${ghprbTargetBranch}
 git diff --name-only  ${ghprbTargetBranch}..${COMMIT} > allChangedFiles.txt
