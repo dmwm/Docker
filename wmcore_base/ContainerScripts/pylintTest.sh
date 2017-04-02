@@ -14,12 +14,16 @@ export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:$PYTHONPATH
 git config remote.origin.url https://github.com/dmwm/WMCore.git
 git config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 
+
+set -x
+
 git fetch --tags  https://github.com/dmwm/WMCore.git "origin/pr/${ghprbPullId}" || true
 git fetch --tags  https://github.com/dmwm/WMCore.git "origin/pr/${ghprbPullId}/merge" || true
 git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/pull/*:refs/remotes/origin/pr/${ghprbPullId}" || true
 git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/pull/*:refs/remotes/origin/pr/${ghprbPullId}/merge" || true
 export COMMIT=`git rev-parse "origin/pr/$ghprbPullId/merge^{commit}"`
 git checkout ${ghprbTargetBranch}
+git pull
 git diff --name-only  ${ghprbTargetBranch}..${COMMIT} > allChangedFiles.txt
 
 # Debug
@@ -45,7 +49,10 @@ while read name; do
  ${HOME}/ContainerScripts/AggregatePylint.py test
 
 done <changedFiles.txt
+
+ls -lR
 cp *.json ${HOME}/artifacts/
+ls -lR ${HOME}
 popd
 
 
