@@ -10,20 +10,19 @@ source ./env_unittest.sh
 pushd wmcore_unittest/WMCore
 export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:$PYTHONPATH
 
-#git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/heads/*:refs/remotes/origin/*"
-git config remote.origin.url https://github.com/dmwm/WMCore.git
-git config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
-
-
+# debug
 set -x
 
-git fetch --tags  https://github.com/dmwm/WMCore.git "origin/pr/${ghprbPullId}" || true
-git fetch --tags  https://github.com/dmwm/WMCore.git "origin/pr/${ghprbPullId}/merge" || true
-git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/pull/*:refs/remotes/origin/pr/${ghprbPullId}" || true
-git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/pull/*:refs/remotes/origin/pr/${ghprbPullId}/merge" || true
-export COMMIT=`git rev-parse "origin/pr/$ghprbPullId/merge^{commit}"`
+# Figure out the one commit we are interested in and what happens to the repo if we were to merge it
+
+#git fetch --tags  https://github.com/dmwm/WMCore.git "+refs/heads/*:refs/remotes/origin/*"
+git config remote.origin.url https://github.com/dmwm/WMCore.git
+#git config --add remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
+
+git fetch origin pull/${ghprbPullId}/merge:PR_MERGE
+export COMMIT=`git rev-parse "PR_MERGE^{commit}"`
 git checkout ${ghprbTargetBranch}
-git pull
+#git pull
 git diff --name-only  ${ghprbTargetBranch}..${COMMIT} > allChangedFiles.txt
 
 # Debug
