@@ -29,8 +29,9 @@ export LATEST_TAG=`git tag |grep JENKINS| sort | tail -1`
 if [ -z "$ghprbPullId" ]; then
   export COMMIT=$LATEST_TAG
 else
-  git fetch origin pull/$3/merge:pr_merge
-  export COMMIT=`git rev-parse "pr_merge^{commit}"`
+  git config remote.origin.url https://github.com/dmwm/WMCore.git
+  git fetch origin pull/${ghprbPullId}/merge:PR_MERGE
+  export COMMIT=`git rev-parse "PR_MERGE^{commit}"`
 fi
 
 # First try to merge this PR into the same tag used for the baseline
