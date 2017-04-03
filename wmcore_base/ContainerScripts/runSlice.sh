@@ -1,5 +1,10 @@
 #! /bin/bash
 
+if [ -z "$1" -o -z "$2" ]; then
+  echo "Not all necessary environment variables set: Two parameters for slice and number of slices"
+  exit 1
+fi
+
 echo Running slice $1 of $2
 set -x
 
@@ -12,7 +17,7 @@ set -x
 source ./env_unittest.sh
 $manage start-services
 
-cd /home/dmwm/wmcore_unittest/WMCore/
+pushd /home/dmwm/wmcore_unittest/WMCore/
 
 # Make sure we base our tests on the latest Jenkins-tested master
 
@@ -21,7 +26,7 @@ git pull
 export LATEST_TAG=`git tag |grep JENKINS| sort | tail -1`
 
 # Find the commit that represents the tip of the PR the latest tag
-if [ -z "$3" ]; then
+if [ -z "$ghprbPullId" ]; then
   export COMMIT=$LATEST_TAG
 else
   git fetch origin pull/$3/merge:pr_merge
@@ -34,11 +39,11 @@ fi
 
 # Run tests and watchdog to shut it down if needed
 
-cd /home/dmwm/wmcore_unittest/WMCore/
-rm test/python/WMCore_t/REST_t/*_t.py
 /home/dmwm/cms-bot/DMWM/TestWatchdog.py &
 python setup.py test --buildBotMode=true --reallyDeleteMyDatabaseAfterEveryTest=true --testCertainPath=test/python --testTotalSlices=$2 --testCurrentSlice=$1
 
 # Save the results
 
 cp nosetests.xml /home/dmwm/artifacts/nosetests-$1.xml
+
+popd
