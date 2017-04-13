@@ -3,6 +3,7 @@ stages:
   - build_jenkins_python
   - build_wmcore_base 
   - build_wmcore_tests
+  - build_wmcore_newtests
   
 build_cms_grid:
   stage: build_cms_grid
@@ -37,6 +38,17 @@ build_wmcore_tests:
   variables:
     TO: $CI_REGISTRY_IMAGE:wmcore_tests # where to push resulting image
     CONTEXT_DIR: wmcore_tests
+    FROM: $CI_REGISTRY_IMAGE:wmcore_base
+
+build_wmcore_newtests:
+  stage: build_wmcore_newtests
+  tags:
+    - docker-image-build
+  script:
+    - docker build -t wmcore_newtests .
+  variables:
+    TO: $CI_REGISTRY_IMAGE:wmcore_newtests # where to push resulting image
+    CONTEXT_DIR: wmcore_newtests
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
 build_wmcore_base:
