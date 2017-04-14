@@ -1,12 +1,10 @@
 stages:
-  - build_cms_grid
-  - build_jenkins_python
-  - build_wmcore_base 
-  - build_wmcore_tests
-  - build_wmcore_newtests
+  - build_1
+  - build_2
+  - build_3
   
 build_cms_grid:
-  stage: build_cms_grid
+  stage: build_1
   tags:
     - docker-image-build
   script:
@@ -18,7 +16,7 @@ build_cms_grid:
 
 
 build_jenkins_python:
-  stage: build_jenkins_python
+  stage: build_1
   tags:
     - docker-image-build
   script:
@@ -30,7 +28,7 @@ build_jenkins_python:
 
 
 build_wmcore_tests:
-  stage: build_wmcore_tests
+  stage: build_3
   tags:
     - docker-image-build
   script:
@@ -41,7 +39,7 @@ build_wmcore_tests:
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
 build_wmcore_newtests:
-  stage: build_wmcore_newtests
+  stage: build_3
   tags:
     - docker-image-build
   script:
@@ -52,7 +50,7 @@ build_wmcore_newtests:
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
 build_wmcore_base:
-  stage: build_wmcore_base
+  stage: build_2
   tags:
     - docker-image-build
   script:
