@@ -6,7 +6,6 @@ if [ -z "$1" -o -z "$2" ]; then
 fi
 
 echo Running slice $1 of $2
-set -x
 
 # Make sure we the certs we use are readable by us and only us
 
