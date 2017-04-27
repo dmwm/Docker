@@ -39,7 +39,8 @@ done <changedFiles.txt
 # Save the artifacts to a directory shared by the container and the node
 cp *.json ${HOME}/artifacts/
 
+# Do pep8 analysis on tip of branch
+pep8 `< changedFiles.txt` > pep8.txt
+cp pep8.txt ${HOME}/artifacts/
+
 popd
-
-
-
