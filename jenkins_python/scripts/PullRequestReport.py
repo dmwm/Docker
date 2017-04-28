@@ -85,7 +85,7 @@ def buildPyCodeStyleReport(templateEnv):
                 errors[fileName].append((line, errorCode, message))
         pycodestyleReportHTML = pycodestyleReportTemplate.render({'report': errors})
     except:
-        print("Was not able to open pycodestyle tests")
+        print("Was not able to open or parase pycodestyle tests")
 
     return False, pycodestyleReportHTML, pycodestyleSummary
 
@@ -203,18 +203,11 @@ def buildPyFutureReport(templateEnv):
 templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
 templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
 
-failedPylint = False
-failedUnitTests = False
-failedPyFuture = False
-
 with open('artifacts/PullRequestReport.html', 'w') as html:
     failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
     failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
     failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
-    try:
-        failedPycodestyle, pycodestyleReport, pycodestyleSummary = buildPyCodeStyleReport(templateEnv)
-    except:
-        pass
+    failedPycodestyle, pycodestyleReport, pycodestyleSummary = buildPyCodeStyleReport(templateEnv)
 
     html.write(unitTestSummaryHTML)
     html.write(pylintSummaryHTML)
