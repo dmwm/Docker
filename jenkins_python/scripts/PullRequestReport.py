@@ -6,16 +6,17 @@ import glob
 import json
 import os
 import time
+from collections import defaultdict
 
 import jinja2
 import xunitparser
-
 from github import Github
 
 pylintReportFile = 'pylint.jinja'
 pylintSummaryFile = 'pylintSummary.jinja'
 unitTestSummaryFile = 'unitTestReport.jinja'
 pyfutureSummaryFile = 'pyfutureSummary.jinja'
+pycodestyleReportFile = 'pycodestyle.jinja'
 
 okWarnings = ['0511', '0703', '0613']
 
@@ -64,6 +65,27 @@ def buildPylintReport(templateEnv):
 
     return failed, pylintSummaryHTML, pylintReport, pylintSummary
 
+def buildPyCodeStyleReport(templateEnv):
+    """
+    Build the report for pycodestyle (also known as pep8)
+    """
+
+    errors = defaultdict(list)
+    pycodestyleReportHTML = None
+
+    try:
+        with open('LatestPylint/pep8.txt', 'r') as reportFile:
+            pycodestyleReportTemplate = templateEnv.get_template(pycodestyleReportFile)
+            for line in reportFile:
+                fileName, line, error = line.split(':', 3)
+                error = error.lstrip().lstrip('[')
+                errorCode, message = error.split('] ', 2)
+                errors[fileName].append((line, errorCode, message))
+                pycodestyleReportHTML = pycodestyleReportTemplate.render({'report': errors})
+    except:
+        print("Was not able to open pycodestyle tests")
+
+    return False, pycodestyleReportHTML
 
 def buildTestReport(templateEnv):
     unstableTests = []
@@ -187,10 +209,13 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
     failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
     failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
     failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
+    failedPycodestyle, pycodestyleReport = buildPyCodeStyleReport(templateEnv)
 
     html.write(unitTestSummaryHTML)
     html.write(pylintSummaryHTML)
     html.write(pylintReport)
+    if pycodestyleReport:
+        html.write(pycodestyleReport)
     html.write(pyfutureSummaryHTML)
 
 gh = Github(os.environ['DMWMBOT_TOKEN'])
