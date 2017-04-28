@@ -72,20 +72,22 @@ def buildPyCodeStyleReport(templateEnv):
 
     errors = defaultdict(list)
     pycodestyleReportHTML = None
+    pycodestyleSummary = {'comments': 0}
 
     try:
         with open('LatestPylint/pep8.txt', 'r') as reportFile:
             pycodestyleReportTemplate = templateEnv.get_template(pycodestyleReportFile)
             for line in reportFile:
+                pycodestyleSummary['comments'] += 1
                 fileName, line, error = line.split(':', 3)
                 error = error.lstrip().lstrip('[')
                 errorCode, message = error.split('] ', 2)
                 errors[fileName].append((line, errorCode, message))
-                pycodestyleReportHTML = pycodestyleReportTemplate.render({'report': errors})
+        pycodestyleReportHTML = pycodestyleReportTemplate.render({'report': errors})
     except:
         print("Was not able to open pycodestyle tests")
 
-    return False, pycodestyleReportHTML
+    return False, pycodestyleReportHTML, pycodestyleSummary
 
 def buildTestReport(templateEnv):
     unstableTests = []
@@ -209,7 +211,10 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
     failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
     failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
     failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
-    failedPycodestyle, pycodestyleReport = buildPyCodeStyleReport(templateEnv)
+    try:
+        failedPycodestyle, pycodestyleReport, pycodestyleSummary = buildPyCodeStyleReport(templateEnv)
+    except:
+        pass
 
     html.write(unitTestSummaryHTML)
     html.write(pylintSummaryHTML)
@@ -260,6 +265,10 @@ if pylintSummary['warnings']:
     message += '   * %s warnings\n' % pylintSummary['warnings']
 if pylintSummary['comments']:
     message += '   * %s comments to review\n' % pylintSummary['comments']
+
+message += ' * Pycodestyle check: %s\n' % statusMap[failedPycodestyle]['readStatus']
+if pycodestyleSummary['comments']:
+    message += '   * %s comments to review\n' % pycodestyleSummary['comments']
 
 message += ' * Python3 compatibility checks: %s\n' % statusMap[failedPyFuture]['readStatus']
 if failedPyFuture:
