@@ -40,7 +40,14 @@ done <changedFiles.txt
 cp *.json ${HOME}/artifacts/
 
 # Do pep8 analysis on tip of branch
-pep8 `< changedFiles.txt` > pep8.txt
+# Renamed pycodestyle in future iterations
+# Hack to fix broken pep8
+echo "#! /usr/bin/env python" > ./pep8
+cat `which pep8` >> ./pep8
+chmod +x pep8
+
+touch NOTHING # If changedFiles.txt is empty, this will keep it from parsing the whole directory tree
+./pep8 NOTHING `< changedFiles.txt` > pep8.txt
 cp pep8.txt ${HOME}/artifacts/
 
 popd
