@@ -80,9 +80,9 @@ def buildPyCodeStyleReport(templateEnv):
             pycodestyleReportTemplate = templateEnv.get_template(pycodestyleReportFile)
             for line in reportFile:
                 pycodestyleSummary['comments'] += 1
-                fileName, line, error = line.split(':', 3)
+                fileName, line, error = line.split(':', 2)
                 error = error.lstrip().lstrip('[')
-                errorCode, message = error.split('] ', 2)
+                errorCode, message = error.split('] ', 1)
                 errors[fileName].append((line, errorCode, message))
         pycodestyleReportHTML = pycodestyleReportTemplate.render({'report': errors})
     except:
