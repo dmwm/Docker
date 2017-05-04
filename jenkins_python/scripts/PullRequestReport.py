@@ -6,6 +6,7 @@ import glob
 import json
 import os
 import time
+import traceback
 from collections import defaultdict
 
 import jinja2
@@ -85,7 +86,8 @@ def buildPyCodeStyleReport(templateEnv):
                 errors[fileName].append((line, errorCode, message))
         pycodestyleReportHTML = pycodestyleReportTemplate.render({'report': errors})
     except:
-        print("Was not able to open or parase pycodestyle tests")
+        print("Was not able to open or parse pycodestyle tests")
+        traceback.print_exc()
 
     return False, pycodestyleReportHTML, pycodestyleSummary
 
