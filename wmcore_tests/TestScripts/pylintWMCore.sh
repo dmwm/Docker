@@ -8,9 +8,12 @@ pushd wmcore_unittest/WMCore
 export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:$PYTHONPATH
 
 set -x
-pwd
 git checkout master
 git pull origin
+
+pwd
+ls
+
 
 #pylint --rcfile=code/standards/.pylintrc -f parseable install/lib/python2.6/site-packages/* 2>&1 > pylint.txt || true
 #ls -lR code
@@ -19,14 +22,14 @@ git pull origin
 #git checkout `git rev-list -n 1 --before="2017-01-01 00:00" master`
 #popd
 
-pylint -j 2 --rcfile=standards/.pylintrc --output-format=parseable .
+pylint --rcfile=standards/.pylintrc  -f parseable .
 
 # For py3 compatibility
 
-pylint --py3k -f parseable -d W1618 .
+#pylint --py3k -f parseable -d W1618 .
 
-echo "#! /usr/bin/env python" > ../pep8
-cat `which pep8` >> ../pep8
-chmod +x ../pep8
+#echo "#! /usr/bin/env python" > ../pep8
+#cat `which pep8` >> ../pep8
+#chmod +x ../pep8
 
-../pep8 .
+#../pep8 .
