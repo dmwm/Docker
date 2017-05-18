@@ -22,7 +22,7 @@ ls
 #git checkout `git rev-list -n 1 --before="2017-01-01 00:00" master`
 #popd
 
-pylint --rcfile=standards/.pylintrc  -f parseable .
+pylint --rcfile=standards/.pylintrc  -f parseable src/python/* test/python/*
 
 # For py3 compatibility
 
@@ -32,4 +32,5 @@ pylint --rcfile=standards/.pylintrc  -f parseable .
 #cat `which pep8` >> ../pep8
 #chmod +x ../pep8
 
-#../pep8 .
+# Run PEP-8 checker but not in pylint format
+../pep8 --format=default .
