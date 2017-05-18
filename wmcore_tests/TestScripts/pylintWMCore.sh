@@ -2,14 +2,13 @@
 
 # Run pylint over the entire WMCore code base
 
-set -x
-
 # Setup the environment
 source ./env_unittest.sh
 pushd wmcore_unittest/WMCore
 export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:$PYTHONPATH
 
-
+set -x
+pwd
 git checkout master
 git pull origin
 
@@ -20,10 +19,14 @@ git pull origin
 #git checkout `git rev-list -n 1 --before="2017-01-01 00:00" master`
 #popd
 
-pylint -j 2 --rcfile=standards/.pylintrc --output-format=parseable code/src/python/* code/test/python/* > pylint.txt || true
+pylint -j 2 --rcfile=standards/.pylintrc --output-format=parseable .
 
 # For py3 compatibility
 
-pylint --py3k -f parseable -d W1618 WMCore || true
+pylint --py3k -f parseable -d W1618 .
 
+echo "#! /usr/bin/env python" > ../pep8
+cat `which pep8` >> ../pep8
+chmod +x ../pep8
 
+../pep8 .
