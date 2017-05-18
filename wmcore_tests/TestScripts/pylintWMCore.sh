@@ -28,9 +28,9 @@ pylint --rcfile=standards/.pylintrc  -f parseable src/python/* test/python/*
 
 #pylint --py3k -f parseable -d W1618 .
 
-#echo "#! /usr/bin/env python" > ../pep8
-#cat `which pep8` >> ../pep8
-#chmod +x ../pep8
+echo "#! /usr/bin/env python" > ../pep8
+cat `which pep8` >> ../pep8
+chmod +x ../pep8
 
 # Run PEP-8 checker but not in pylint format
 ../pep8 --format=default .
