@@ -26,6 +26,16 @@ build_jenkins_python:
     CONTEXT_DIR: jenkins_python
     FROM: python:2
 
+build_wmcore_base:
+  stage: build_2
+  tags:
+    - docker-image-build
+  script:
+    - docker build -t wmcore_base .
+  variables:
+    TO: $CI_REGISTRY_IMAGE:wmcore_base # where to push resulting image
+    CONTEXT_DIR: wmcore_base
+    FROM: $CI_REGISTRY_IMAGE:cms_grid
 
 build_wmcore_tests:
   stage: build_3
@@ -38,24 +48,15 @@ build_wmcore_tests:
     CONTEXT_DIR: wmcore_tests
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
-build_wmcore_newtests:
+build_dbs_tests:
   stage: build_3
   tags:
     - docker-image-build
   script:
-    - docker build -t wmcore_newtests .
+    - docker build -t dbs_tests .
   variables:
-    TO: $CI_REGISTRY_IMAGE:wmcore_newtests # where to push resulting image
-    CONTEXT_DIR: wmcore_newtests
+    TO: $CI_REGISTRY_IMAGE:dbs_tests # where to push resulting image
+    CONTEXT_DIR: dbs_tests
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
-build_wmcore_base:
-  stage: build_2
-  tags:
-    - docker-image-build
-  script:
-    - docker build -t wmcore_base .
-  variables:
-    TO: $CI_REGISTRY_IMAGE:wmcore_base # where to push resulting image
-    CONTEXT_DIR: wmcore_base
-    FROM: $CI_REGISTRY_IMAGE:cms_grid
+

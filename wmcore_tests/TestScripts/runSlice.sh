@@ -19,9 +19,10 @@ $manage start-services
 pushd /home/dmwm/wmcore_unittest/WMCore/
 
 # Make sure we base our tests on the latest Jenkins-tested master
+# sometimes GitHub has issues, so try each command twice
 
-git fetch --tags
-git pull
+timeout -s 9 5m git fetch --tags || timeout -s 9 5m git fetch --tags
+timeout -s 9 5m git pull || timeout -s 9 5m git fetch --tags
 export LATEST_TAG=`git tag |grep JENKINS| sort | tail -1`
 
 # Find the commit that represents the tip of the PR the latest tag
