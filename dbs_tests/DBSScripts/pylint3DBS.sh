@@ -11,4 +11,5 @@ timeout -s 9 5m git checkout master || timeout -s 9 5m git checkout master
 timeout -s 9 5m git pull origin || timeout -s 9 5m git pull origin
 
 # Run pylint on the whole code base checking for Python3 compatibility
+export PYTHONPATH=${PYTHONPATH}:`pwd`/Server/Python/src/dbs:`pwd`/Client/src/python/dbs/api
 pylint --py3k -f parseable -d W1618 Client/src/python/dbs/ Server/Python/src/dbs/ PycurlClient/src/python/RestClient/

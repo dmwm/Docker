@@ -12,6 +12,7 @@ timeout -s 9 5m git pull origin || timeout -s 9 5m git pull origin
 
 # Run pylint on the whole code base
 # Remove C0103 for now since all dbs modules start with dbs instead of Dbs. Maybe a new standards file later.
+export PYTHONPATH=${PYTHONPATH}:`pwd`/Server/Python/src/dbs:`pwd`/Client/src/python/dbs/api
 pylint --rcfile /home/dmwm/dbs_test/.pylintrc -d C0103 -f parseable Client/src/python/dbs/ Server/Python/src/dbs/ PycurlClient/src/python/RestClient/
 
 # Fix pep8 which has the wrong python executable
