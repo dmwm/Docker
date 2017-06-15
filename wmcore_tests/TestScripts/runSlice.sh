@@ -41,7 +41,7 @@ fi
 # Run tests and watchdog to shut it down if needed
 export USER=`whoami`
 /home/dmwm/cms-bot/DMWM/TestWatchdog.py &
-python setup.py test --buildBotMode=true --reallyDeleteMyDatabaseAfterEveryTest=true --testCertainPath=test/python --testTotalSlices=$2 --testCurrentSlice=$1
+timeout 80m python setup.py test --buildBotMode=true --reallyDeleteMyDatabaseAfterEveryTest=true --testCertainPath=test/python --testTotalSlices=$2 --testCurrentSlice=$1
 
 # Save the results
 
