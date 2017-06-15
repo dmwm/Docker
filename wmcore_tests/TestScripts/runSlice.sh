@@ -30,7 +30,7 @@ if [ -z "$ghprbPullId" ]; then
   export COMMIT=$LATEST_TAG
 else
   git config remote.origin.url https://github.com/dmwm/WMCore.git
-  git fetch origin pull/${ghprbPullId}/merge:PR_MERGE
+  timeout -s 9 5m git fetch origin pull/${ghprbPullId}/merge:PR_MERGE
   export COMMIT=`git rev-parse "PR_MERGE^{commit}"`
 fi
 
