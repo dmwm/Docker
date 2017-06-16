@@ -2,7 +2,7 @@ FROM gitlab-registry.cern.ch/cmsdocks/dmwm:cms_grid
 
 # Add the extra system stuff we need
 
-RUN echo "Updating the base system - 2016-11-17"
+RUN echo "Updating the base system - 2017-06-16"
 
 RUN yum -y install cern-get-sso-cookie && yum clean all
 
