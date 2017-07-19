@@ -21,6 +21,8 @@ git push origin ${TAG}
 
 # Deletes tags from previous days
 export VALID_TAGS=`date "+JENKINS_%Y%m%d"`
+git tag -d `git tag | grep JENKINS`
+git fetch --tags 
 git push --delete origin `git tag | grep JENKINS | grep -Ev ${VALID_TAGS}` || true
 
 popd
