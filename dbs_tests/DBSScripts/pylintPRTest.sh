@@ -37,7 +37,7 @@ while read name; do
 done <changedFiles.txt
 
 # Save the artifacts to a directory shared by the container and the node
-cp *.json ${HOME}/artifacts/
+cp pylintReport.json ${HOME}/artifacts/
 
 # Do pep8 analysis on tip of branch
 # Renamed pycodestyle in future iterations
