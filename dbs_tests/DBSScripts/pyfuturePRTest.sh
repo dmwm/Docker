@@ -16,7 +16,7 @@ git fetch origin pull/${ghprbPullId}/merge:PR_MERGE
 export COMMIT=`git rev-parse "PR_MERGE^{commit}"`
 git checkout -f ${COMMIT}
 
-futurize -1 src/ test/ > test.patch
+futurize -1 . > test.patch
 
 # Get changed files and analyze for idioms
 git diff --name-only  ${ghprbTargetBranch}..${COMMIT} > changedFiles.txt
