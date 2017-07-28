@@ -207,7 +207,10 @@ templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip
 
 with open('artifacts/PullRequestReport.html', 'w') as html:
     failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
-    failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
+    try:
+        failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
+    except IOError:
+        failedUnitTests, unitTestSummaryHTML, unitTestSummary = 0, '', ''
     failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
     failedPycodestyle, pycodestyleReport, pycodestyleSummary = buildPyCodeStyleReport(templateEnv)
 
@@ -241,17 +244,19 @@ statusMap = {False: {'ghStatus': 'success', 'readStatus': 'succeeded'},
              True: {'ghStatus': 'failure', 'readStatus': 'failed'}, }
 
 message = 'Jenkins results:\n'
-message += ' * Unit tests: %s\n' % statusMap[failedUnitTests]['readStatus']
-if unitTestSummary['newFailures']:
-    message += '   * %s new failures\n' % unitTestSummary['newFailures']
-if unitTestSummary['deleted']:
-    message += '   * %s tests deleted\n' % unitTestSummary['deleted']
-if unitTestSummary['okChanges']:
-    message += '   * %s tests no longer failing\n' % unitTestSummary['okChanges']
-if unitTestSummary['added']:
-    message += '   * %s tests added\n' % unitTestSummary['added']
-if unitTestSummary['unstableChanges']:
-    message += '   * %s changes in unstable tests\n' % unitTestSummary['unstableChanges']
+
+if unitTestSummary:  # Some repos have no unit tests
+    message += ' * Unit tests: %s\n' % statusMap[failedUnitTests]['readStatus']
+    if unitTestSummary['newFailures']:
+        message += '   * %s new failures\n' % unitTestSummary['newFailures']
+    if unitTestSummary['deleted']:
+        message += '   * %s tests deleted\n' % unitTestSummary['deleted']
+    if unitTestSummary['okChanges']:
+        message += '   * %s tests no longer failing\n' % unitTestSummary['okChanges']
+    if unitTestSummary['added']:
+        message += '   * %s tests added\n' % unitTestSummary['added']
+    if unitTestSummary['unstableChanges']:
+        message += '   * %s changes in unstable tests\n' % unitTestSummary['unstableChanges']
 
 message += ' * Pylint check: %s\n' % statusMap[failedPylint]['readStatus']
 if pylintSummary['failures']:

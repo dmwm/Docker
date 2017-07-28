@@ -21,6 +21,8 @@ elif 'TargetIssueID' in os.environ:
     issueID = os.environ['TargetIssueID']
     mode = 'Daily'
 
+print("Looking for %s issue %s" % (repoName, issueID))
+
 repo = gh.get_repo(repoName)
 issue = repo.get_issue(int(issueID))
 reportURL = os.environ['BUILD_URL']
