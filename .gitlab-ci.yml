@@ -59,4 +59,15 @@ build_dbs_tests:
     CONTEXT_DIR: dbs_tests
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
+build_crab_tests:
+  stage: build_3
+  tags:
+    - docker-image-build
+  script:
+    - docker build -t crab_tests .
+  variables:
+    TO: $CI_REGISTRY_IMAGE:crab_tests # where to push resulting image
+    CONTEXT_DIR: crab_tests
+    FROM: $CI_REGISTRY_IMAGE:wmcore_base
+
 
