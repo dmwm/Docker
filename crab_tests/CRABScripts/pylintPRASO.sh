@@ -7,7 +7,7 @@ fi
 
 # Setup the environment
 source ./env_unittest.sh
-pushd aso_test/ASO
+pushd aso_test/AsyncStageout
 export PYTHONPATH=`pwd`/src/python:`pwd`/test/python:${PYTHONPATH}
 
 # Figure out the one commit we are interested in and what happens to the repo if we were to merge it
