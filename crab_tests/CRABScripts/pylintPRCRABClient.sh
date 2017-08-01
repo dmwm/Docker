@@ -7,7 +7,7 @@ fi
 
 # Setup the environment
 source ./env_unittest.sh
-pushd crabclient_test/CRABServer
+pushd crabclient_test/CRABClient
 export PYTHONPATH=`pwd`/src/python:`pwd`/test/python:${PYTHONPATH}
 
 # Figure out the one commit we are interested in and what happens to the repo if we were to merge it
