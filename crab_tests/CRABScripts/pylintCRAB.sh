@@ -37,13 +37,13 @@ timeout -s 9 5m git pull origin || timeout -s 9 5m git pull origin
 export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:${PYTHONPATH}
 popd
 
-export MODULES="aso_test/AsyncStageout/test/python/AsyncStageOut_t/ aso_test/AsyncStageout/src/python/AsyncStageOut " \
- "crabserver_test/CRABServer/src/python/UserFileCache crabserver_test/CRABServer/src/python/taskbuffer " \
- "crabserver_test/CRABServer/src/python/TaskWorker crabserver_test/CRABServer/src/python/CRABInterface " \
- "crabserver_test/CRABServer/src/python/Databases crabclient_test/CRABClient/src/python/CRABClient " \
- "crabclient_test/CRABClient/src/python/CRABAPI "
+pylint --rcfile /home/dmwm/crabclient_test/.pylintrc -f parseable \
+  aso_test/AsyncStageout/test/python/AsyncStageOut_t/ \
+  aso_test/AsyncStageout/src/python/AsyncStageOut crabserver_test/CRABServer/src/python/UserFileCache \
+  crabserver_test/CRABServer/src/python/taskbuffer crabserver_test/CRABServer/src/python/TaskWorker \
+  crabserver_test/CRABServer/src/python/CRABInterface crabserver_test/CRABServer/src/python/Databases \
+  crabclient_test/CRABClient/src/python/CRABClient crabclient_test/CRABClient/src/python/CRABAPI
 
-pylint --rcfile /home/dmwm/crabclient_test/.pylintrc -f parseable $MODULES
 
 
 # Fix pep8 which has the wrong python executable
