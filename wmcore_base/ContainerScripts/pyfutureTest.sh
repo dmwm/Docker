@@ -22,6 +22,7 @@ git diff --name-only  ${ghprbTargetBranch}..${COMMIT} > changedFiles.txt
 git diff-tree --name-status  -r ${ghprbTargetBranch}..${COMMIT} | egrep "^A" | cut -f 2 > addedFiles.txt
 
 while read name; do
+  futurize -f execfile -f filter -f raw_input >> test.patch || true
   futurize -f idioms $name  >> idioms.patch || true
 done <changedFiles.txt
 
