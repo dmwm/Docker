@@ -3,7 +3,7 @@ FROM cern/cc7-base:latest
 # Add the extra system stuff we need
 #RUN yum -y install HEP_OSlibs && yum clean all
 
-RUN yum -y update && yum -y install wget HEP_OSlibs cronie yum-plugin-priorities e2fsprogs git voms-clients-cpp osg-ca-certs vo-client && yum clean all
+RUN yum -y update && yum -y install which wget HEP_OSlibs cronie yum-plugin-priorities e2fsprogs git voms-clients-cpp osg-ca-certs vo-client && yum clean all
 
 # Try more stuff from cms images
 RUN yum update -y && yum install -y HEP_OSlibs_CC7 finger screen libXpm-devel libXft-devel krb5-devel subversion telnet readline-devel wget \
