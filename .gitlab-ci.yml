@@ -12,7 +12,7 @@ build_cms_grid:
   variables:
     TO: $CI_REGISTRY_IMAGE:cms_grid # where to push resulting image
     CONTEXT_DIR: cms_grid
-    FROM: cern/slc6-base:latest
+    FROM: cern/cc7-base:latest
 
 
 build_jenkins_python:
