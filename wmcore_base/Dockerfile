@@ -24,7 +24,7 @@ COPY ContainerScripts /home/dmwm/ContainerScripts
 
 # Install cms-bot and WMCore
 RUN echo "Release version of WMCore 1.0.21.patch1"
-ENV DMWM_ARCH slc6_amd64_gcc493
+ENV DMWM_ARCH slc7_amd64_gcc630
 RUN sh ContainerScripts/installCMSBot.sh
 
 #Finished
