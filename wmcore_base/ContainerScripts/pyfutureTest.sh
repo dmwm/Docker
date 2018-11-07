@@ -20,7 +20,9 @@ echo "$(TZ=GMT date): figuring out what are the files that changed"
 # Find all the changed files and filter python-only
 git diff --name-only  ${ghprbTargetBranch}..${COMMIT} > allChangedFiles.txt
 ${HOME}/ContainerScripts/IdentifyPythonFiles.py allChangedFiles.txt > changedFiles.txt
-git diff-tree --name-status  -r ${ghprbTargetBranch}..${COMMIT} | egrep "^A" | cut -f 2 > addedFiles.txt
+git diff-tree --name-status  -r ${ghprbTargetBranch}..${COMMIT} | egrep "^A" | cut -f 2 > allAddedFiles.txt
+${HOME}/ContainerScripts/IdentifyPythonFiles.py allAddedFiles.txt > addedFiles.txt
+rm -f allChangedFiles.txt allAddedFiles.txt
 
 echo "$(TZ=GMT date): running futurize 1st stage and some fixers"
 while read name; do
