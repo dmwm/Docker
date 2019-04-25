@@ -4,7 +4,9 @@ FROM gitlab-registry.cern.ch/cmsdocks/dmwm:cms_grid
 
 RUN echo "Updating the base system - 2017-06-16"
 
-RUN yum -y install cern-get-sso-cookie && yum clean all
+RUN yum -y install cern-get-sso-cookie python-pip && yum clean all
+RUN pip --no-cache-dir install --upgrade pip setuptools
+RUN pip --no-cache-dir install pylint==1.9.4
 
 # Add a new user (CMS stuff refuses to install as root)
 
