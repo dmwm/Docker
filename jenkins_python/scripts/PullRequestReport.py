@@ -14,6 +14,7 @@ import xunitparser
 from github import Github
 
 pylintReportFile = 'pylint.jinja'
+pylint3kReportFile = 'pylint3k.jinja'
 pylintSummaryFile = 'pylintSummary.jinja'
 unitTestSummaryFile = 'unitTestReport.jinja'
 pyfutureSummaryFile = 'pyfutureSummary.jinja'
@@ -28,7 +29,9 @@ failed = False
 
 
 def buildPylintReport(templateEnv):
-    with open('LatestPylint/pylintReport.json', 'r') as reportFile:
+    fileName = "pylintReport.json"
+    print("Evaluating pylint report for file: {}".format(fileName))
+    with open('LatestPylint/{}'.format(fileName), 'r') as reportFile:
         report = json.load(reportFile)
 
         pylintReportTemplate = templateEnv.get_template(pylintReportFile)
@@ -39,12 +42,10 @@ def buildPylintReport(templateEnv):
         pylintSummaryHTML = pylintSummaryTemplate.render({'report': report, 'filenames': sorted(report.keys())})
 
     # Figure out if pylint failed
-
     failed = False
     failures = 0
     warnings = 0
     comments = 0
-
     for filename in report.keys():
         if 'test' in report[filename]:
             for event in report[filename]['test']['events']:
@@ -63,20 +64,45 @@ def buildPylintReport(templateEnv):
                     failed = True
 
     pylintSummary = {'failures': failures, 'warnings': warnings, 'comments': comments}
-
     return failed, pylintSummaryHTML, pylintReport, pylintSummary
+
+
+def buildPylint3kReport(templateEnv):
+    fileName = "pylint3kReport.json"
+    print("Evaluating pylint report for file: {}".format(fileName))
+    try:
+        with open('LatestPylint/{}'.format(fileName), 'r') as reportFile:
+            report = json.load(reportFile)
+
+            pylintReportTemplate = templateEnv.get_template(pylint3kReportFile)
+            # Process the template to produce our final text.
+            pylintReport = pylintReportTemplate.render({'report': report, 'okWarnings': okWarnings})
+    except IOError:
+        print("File {} not found.".format(fileName))
+        return None, None
+
+    pylintSummary = {'errors': 0, 'warnings': 0, 'comments': 0}
+    for filename in report:
+        summary = report[filename]['test']
+        for prop in pylintSummary:
+            pylintSummary[prop] += summary[prop]
+
+    return pylintReport, pylintSummary
+
 
 def buildPyCodeStyleReport(templateEnv):
     """
     Build the report for pycodestyle (also known as pep8)
     """
+    fileName = "pep8.txt"
+    print("Evaluating pep8 style report for file: {}".format(fileName))
 
     errors = defaultdict(list)
     pycodestyleReportHTML = None
     pycodestyleSummary = {'comments': 0}
 
     try:
-        with open('LatestPylint/pep8.txt', 'r') as reportFile:
+        with open('LatestPylint/{}'.format(fileName), 'r') as reportFile:
             pycodestyleReportTemplate = templateEnv.get_template(pycodestyleReportFile)
             for line in reportFile:
                 pycodestyleSummary['comments'] += 1
@@ -92,6 +118,7 @@ def buildPyCodeStyleReport(templateEnv):
     return False, pycodestyleReportHTML, pycodestyleSummary
 
 def buildTestReport(templateEnv):
+    print("Evaluating base/test unit tests report files")
     unstableTests = []
     testResults = {}
 
@@ -144,9 +171,6 @@ def buildTestReport(templateEnv):
         elif oldStatus:
             deleted.append({'name': testName, 'new': newStatus, 'old': oldStatus})
 
-    changed = newFailures or added or deleted or unstableChanges or okChanges
-    stableChanged = newFailures or added or deleted or okChanges
-
     unitTestSummaryTemplate = templateEnv.get_template(unitTestSummaryFile)
     unitTestSummaryHTML = unitTestSummaryTemplate.render({'newFailures': newFailures,
                                                           'added': added,
@@ -163,6 +187,8 @@ def buildTestReport(templateEnv):
 
 
 def buildPyFutureReport(templateEnv):
+    print("Evaluating futurize reports")
+
     pyfutureSummary = {}
     failed = False
 
@@ -202,21 +228,27 @@ def buildPyFutureReport(templateEnv):
     return failed, pyfutureSummary, pyfutureSummaryHTML
 
 
+### main code
+# load jinja templates first
 templateLoader = jinja2.FileSystemLoader(searchpath="templates/")
 templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip_blocks=True)
 
-with open('artifacts/PullRequestReport.html', 'w') as html:
-    failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
-    try:
-        failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
-    except IOError:
-        failedUnitTests, unitTestSummaryHTML, unitTestSummary = 0, '', ''
-    failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
-    failedPycodestyle, pycodestyleReport, pycodestyleSummary = buildPyCodeStyleReport(templateEnv)
+# now build reports from jenkins artifacts
+failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
+pylintReport3k, pylintSummary3k = buildPylint3kReport(templateEnv)
+try:
+    failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
+except IOError:
+    failedUnitTests, unitTestSummaryHTML, unitTestSummary = 0, '', ''
+failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
+failedPycodestyle, pycodestyleReport, pycodestyleSummary = buildPyCodeStyleReport(templateEnv)
 
+with open('artifacts/PullRequestReport.html', 'w') as html:
     html.write(unitTestSummaryHTML)
     html.write(pylintSummaryHTML)
     html.write(pylintReport)
+    if pylintSummary3k:
+        html.write(pylintReport3k)
     if pycodestyleReport:
         html.write(pycodestyleReport)
     html.write(pyfutureSummaryHTML)
@@ -266,6 +298,13 @@ if pylintSummary['warnings']:
 if pylintSummary['comments']:
     message += '   * %s comments to review\n' % pylintSummary['comments']
 
+if pylintSummary3k:
+    failedPy3k = bool(sum(pylintSummary3k.values()))
+    message += ' * Pylint py3k check: %s\n' % statusMap[failedPy3k]['readStatus']
+    message += '   * %s errors and warnings that should be fixed\n' % pylintSummary3k['errors']
+    message += '   * %s warnings\n' % pylintSummary3k['warnings']
+    message += '   * %s comments to review\n' % pylintSummary3k['comments']
+
 message += ' * Pycodestyle check: %s\n' % statusMap[failedPycodestyle]['readStatus']
 if pycodestyleSummary['comments']:
     message += '   * %s comments to review\n' % pycodestyleSummary['comments']
@@ -282,6 +321,9 @@ status = issue.create_comment(message)
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
 lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylint',
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Pylint')
+if pylintSummary3k:
+    lastCommit.create_status(state=statusMap[failedPy3k]['ghStatus'], target_url=reportURL + '#pylint3k',
+                             description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Pylint3k')
 lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Unit tests')
 lastCommit.create_status(state=statusMap[failedPyFuture]['ghStatus'], target_url=reportURL + '#pyfuture',
@@ -292,6 +334,11 @@ if failedPylint:
     print('Testing of python code. DMWM-FAIL-PYLINT')
 else:
     print('Testing of python code. DMWM-SUCCEED-PYLINT')
+
+if pylintSummary3k and failedPy3k:
+    print('Testing of python code. DMWM-FAIL-PYLINT3K')
+elif pylintSummary3k:
+    print('Testing of python code. DMWM-SUCCEED-PYLINT3k')
 
 if failedUnitTests:
     print('Testing of python code. DMWM-FAIL-UNIT')
