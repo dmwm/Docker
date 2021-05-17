@@ -2,18 +2,24 @@ stages:
   - build_1
   - build_2
   - build_3
-  
-build_cms_grid:
-  stage: build_1
-  tags:
-    - docker-image-build
-  script:
-    - docker build -t cms_grid .
-  variables:
-    TO: $CI_REGISTRY_IMAGE:cms_grid # where to push resulting image
-    CONTEXT_DIR: cms_grid
-    FROM: cern/cc7-base:latest
 
+# Reference: 
+# https://gitlab.cern.ch/gitlabci-examples/build_docker_image/-/blob/daeca041733e2af279df38a3b9e8123111c62871/.gitlab-ci.yml
+build_cms_grid:
+    stage: build_1
+    variables:
+      IMAGE_DESTINATION: ${CI_REGISTRY_IMAGE}:cms_grid
+      IMAGECACHE_DESTINATION: ${CI_REGISTRY_IMAGE}/cms_grid_cache
+    image: 
+        name: gitlab-registry.cern.ch/ci-tools/docker-image-builder
+        entrypoint: [""]
+    script:
+        - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+        - /kaniko/executor --context $CI_PROJECT_DIR/cms_grid --dockerfile $CI_PROJECT_DIR/cms_grid/Dockerfile --destination $IMAGE_DESTINATION --cache=true --cache-repo $IMAGECACHE_DESTINATION
+        - echo "Image pushed successfully to ${IMAGE_DESTINATION}"
+
+# Reference:
+# https://gitlab.cern.ch/ci-tools/docker-image-builder/-/blob/b756ab0a85983439cd241457ce33bc7e5f940b86/README.md
 
 build_jenkins_python:
   stage: build_1
@@ -22,9 +28,22 @@ build_jenkins_python:
   script:
     - docker build -t jenkins_python .
   variables:
-    TO: $CI_REGISTRY_IMAGE:jenkins_python # where to push resulting image
+    TO: $CI_REGISTRY_IMAGE:jenkins_python
     CONTEXT_DIR: jenkins_python
+    DOCKER_FILE: Dockerfile
     FROM: python:2
+
+build_jenkins_python3:
+  stage: build_1
+  tags:
+    - docker-image-build
+  script:
+    - docker build -t jenkins_python3 .
+  variables:
+    TO: $CI_REGISTRY_IMAGE:jenkins_python3
+    CONTEXT_DIR: jenkins_python
+    DOCKER_FILE: py3.Dockerfile
+    FROM: python:3.8.2
 
 build_wmcore_base:
   stage: build_2
@@ -33,7 +52,7 @@ build_wmcore_base:
   script:
     - docker build -t wmcore_base .
   variables:
-    TO: $CI_REGISTRY_IMAGE:wmcore_base # where to push resulting image
+    TO: $CI_REGISTRY_IMAGE:wmcore_base
     CONTEXT_DIR: wmcore_base
     FROM: $CI_REGISTRY_IMAGE:cms_grid
 
@@ -44,8 +63,21 @@ build_wmcore_tests:
   script:
     - docker build -t wmcore_tests .
   variables:
-    TO: $CI_REGISTRY_IMAGE:wmcore_tests # where to push resulting image
+    TO: $CI_REGISTRY_IMAGE:wmcore_tests
     CONTEXT_DIR: wmcore_tests
+    DOCKER_FILE: Dockerfile
+    FROM: $CI_REGISTRY_IMAGE:wmcore_base
+
+build_wmcorepy3_tests:
+  stage: build_3
+  tags:
+    - docker-image-build
+  script:
+    - docker build -t wmcorepy3_tests .
+  variables:
+    TO: $CI_REGISTRY_IMAGE:wmcorepy3_tests
+    CONTEXT_DIR: wmcore_tests
+    DOCKER_FILE: py3.Dockerfile
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
 build_dbs_tests:
@@ -55,7 +87,7 @@ build_dbs_tests:
   script:
     - docker build -t dbs_tests .
   variables:
-    TO: $CI_REGISTRY_IMAGE:dbs_tests # where to push resulting image
+    TO: $CI_REGISTRY_IMAGE:dbs_tests
     CONTEXT_DIR: dbs_tests
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
@@ -66,7 +98,7 @@ build_crab_tests:
   script:
     - docker build -t crab_tests .
   variables:
-    TO: $CI_REGISTRY_IMAGE:crab_tests # where to push resulting image
+    TO: $CI_REGISTRY_IMAGE:crab_tests
     CONTEXT_DIR: crab_tests
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
