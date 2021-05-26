@@ -117,8 +117,18 @@ def buildPyCodeStyleReport(templateEnv):
 
     return False, pycodestyleReportHTML, pycodestyleSummary
 
-def buildTestReport(templateEnv):
-    print("Evaluating base/test unit tests report files")
+def buildUnitTestReport(templateEnv, pyName="Python2"):
+    """
+    Builds the python2/python3 unit test report
+    :param templateEnv: string with the name of the jinja template
+    :param pyName: string with either a Python2 or Python3 value
+    :return:
+    """
+    if pyName not in ("Python2", "Python3"):
+        print("Actually, you passed an invalid python name argument!")
+        raise RuntimeError()
+
+    print("Evaluating base/test {} unit tests report files".format(pyName))
     unstableTests = []
     testResults = {}
 
@@ -129,9 +139,10 @@ def buildTestReport(templateEnv):
     except:
         print("Was not able to open list of unstable tests")
 
+    filePattern = '*/nosetests-*.xml' if pyName == "Python2" else '*/nosetestspy3-*.xml'
     for kind, directory in [('base', './MasterUnitTests/'), ('test', './LatestUnitTests/')]:
         print("Scanning directory %s" % directory)
-        for xunitFile in glob.iglob(directory + '*/nosetests-*.xml'):
+        for xunitFile in glob.iglob(directory + filePattern):
             print("Opening file %s" % xunitFile)
             with open(xunitFile) as xf:
                 ts, tr = xunitparser.parse(xf)
@@ -141,6 +152,9 @@ def buildTestReport(templateEnv):
                         testResults[testName].update({kind: tc.result})
                     else:
                         testResults[testName] = {kind: tc.result}
+    if not testResults:
+        print("No unit test results found!")
+        raise RuntimeError()
 
     failed = False
     errorConditions = ['error', 'failure']
@@ -172,7 +186,8 @@ def buildTestReport(templateEnv):
             deleted.append({'name': testName, 'new': newStatus, 'old': oldStatus})
 
     unitTestSummaryTemplate = templateEnv.get_template(unitTestSummaryFile)
-    unitTestSummaryHTML = unitTestSummaryTemplate.render({'newFailures': newFailures,
+    unitTestSummaryHTML = unitTestSummaryTemplate.render({'whichPython': pyName,
+                                                          'newFailures': newFailures,
                                                           'added': added,
                                                           'deleted': deleted,
                                                           'unstableChanges': unstableChanges,
@@ -182,7 +197,7 @@ def buildTestReport(templateEnv):
 
     unitTestSummary = {'newFailures': len(newFailures), 'added': len(added), 'deleted': len(deleted),
                        'okChanges': len(okChanges), 'unstableChanges': len(unstableChanges)}
-    print("Unit Test summary %s" % unitTestSummary)
+    print("{} Unit Test summary {}".format(pyName, unitTestSummary))
     return failed, unitTestSummaryHTML, unitTestSummary
 
 
@@ -236,15 +251,26 @@ templateEnv = jinja2.Environment(loader=templateLoader, trim_blocks=True, lstrip
 # now build reports from jenkins artifacts
 failedPylint, pylintSummaryHTML, pylintReport, pylintSummary = buildPylintReport(templateEnv)
 pylintReport3k, pylintSummary3k = buildPylint3kReport(templateEnv)
-try:
-    failedUnitTests, unitTestSummaryHTML, unitTestSummary = buildTestReport(templateEnv)
-except IOError:
-    failedUnitTests, unitTestSummaryHTML, unitTestSummary = 0, '', ''
 failedPyFuture, pyfutureSummary, pyfutureSummaryHTML = buildPyFutureReport(templateEnv)
 failedPycodestyle, pycodestyleReport, pycodestyleSummary = buildPyCodeStyleReport(templateEnv)
 
+# not all projects have unit tests. First, try to create the Python2 based unit tests
+try:
+    py2FailedUnitTests, py2UnitTestSummaryHTML, py2UnitTestSummary = buildUnitTestReport(templateEnv, pyName="Python2")
+except (IOError, RuntimeError):
+    py2FailedUnitTests, py2UnitTestSummaryHTML, py2UnitTestSummary = 0, '', {}
+# Now try to create the Python3 based unit tests
+try:
+    py3FailedUnitTests, py3UnitTestSummaryHTML, py3UnitTestSummary = buildUnitTestReport(templateEnv, pyName="Python3")
+except (IOError, RuntimeError):
+    py3FailedUnitTests, py3UnitTestSummaryHTML, py3UnitTestSummary = 0, '', {}
+
+
 with open('artifacts/PullRequestReport.html', 'w') as html:
-    html.write(unitTestSummaryHTML)
+    if py3UnitTestSummary:
+        html.write(py3UnitTestSummaryHTML)
+    if py2UnitTestSummary:
+        html.write(py2UnitTestSummaryHTML)
     html.write(pylintSummaryHTML)
     html.write(pylintReport)
     if pylintSummary3k:
@@ -277,18 +303,32 @@ statusMap = {False: {'ghStatus': 'success', 'readStatus': 'succeeded'},
 
 message = 'Jenkins results:\n'
 
-if unitTestSummary:  # Some repos have no unit tests
-    message += ' * Unit tests: %s\n' % statusMap[failedUnitTests]['readStatus']
-    if unitTestSummary['newFailures']:
-        message += '   * %s new failures\n' % unitTestSummary['newFailures']
-    if unitTestSummary['deleted']:
-        message += '   * %s tests deleted\n' % unitTestSummary['deleted']
-    if unitTestSummary['okChanges']:
-        message += '   * %s tests no longer failing\n' % unitTestSummary['okChanges']
-    if unitTestSummary['added']:
-        message += '   * %s tests added\n' % unitTestSummary['added']
-    if unitTestSummary['unstableChanges']:
-        message += '   * %s changes in unstable tests\n' % unitTestSummary['unstableChanges']
+
+if py2UnitTestSummary:  # Some repos have no unit tests
+    message += ' * Python2 Unit tests: %s\n' % statusMap[py2FailedUnitTests]['readStatus']
+    if py2UnitTestSummary['newFailures']:
+        message += '   * %s new failures\n' % py2UnitTestSummary['newFailures']
+    if py2UnitTestSummary['deleted']:
+        message += '   * %s tests deleted\n' % py2UnitTestSummary['deleted']
+    if py2UnitTestSummary['okChanges']:
+        message += '   * %s tests no longer failing\n' % py2UnitTestSummary['okChanges']
+    if py2UnitTestSummary['added']:
+        message += '   * %s tests added\n' % py2UnitTestSummary['added']
+    if py2UnitTestSummary['unstableChanges']:
+        message += '   * %s changes in unstable tests\n' % py2UnitTestSummary['unstableChanges']
+
+if py3UnitTestSummary:  # Most of the repositories do not yet have python3 unit tests
+    message += ' * Python3 Unit tests: %s\n' % statusMap[py3FailedUnitTests]['readStatus']
+    if py3UnitTestSummary['newFailures']:
+        message += '   * %s new failures\n' % py3UnitTestSummary['newFailures']
+    if py3UnitTestSummary['deleted']:
+        message += '   * %s tests deleted\n' % py3UnitTestSummary['deleted']
+    if py3UnitTestSummary['okChanges']:
+        message += '   * %s tests no longer failing\n' % py3UnitTestSummary['okChanges']
+    if py3UnitTestSummary['added']:
+        message += '   * %s tests added\n' % py3UnitTestSummary['added']
+    if py3UnitTestSummary['unstableChanges']:
+        message += '   * %s changes in unstable tests\n' % py3UnitTestSummary['unstableChanges']
 
 message += ' * Pylint check: %s\n' % statusMap[failedPylint]['readStatus']
 if pylintSummary['failures']:
@@ -298,12 +338,16 @@ if pylintSummary['warnings']:
 if pylintSummary['comments']:
     message += '   * %s comments to review\n' % pylintSummary['comments']
 
+failedPy3k = False
 if pylintSummary3k:
-    failedPy3k = bool(sum(pylintSummary3k.values()))
+    failedPy3k = bool(pylintSummary3k['errors'] or pylintSummary3k['warnings'])
     message += ' * Pylint py3k check: %s\n' % statusMap[failedPy3k]['readStatus']
-    message += '   * %s errors and warnings that should be fixed\n' % pylintSummary3k['errors']
-    message += '   * %s warnings\n' % pylintSummary3k['warnings']
-    message += '   * %s comments to review\n' % pylintSummary3k['comments']
+    if pylintSummary3k['errors']:
+        message += '   * %s errors and warnings that should be fixed\n' % pylintSummary3k['errors']
+    if pylintSummary3k['warnings']:
+        message += '   * %s warnings\n' % pylintSummary3k['warnings']
+    if pylintSummary3k['comments']:
+        message += '   * %s comments to review\n' % pylintSummary3k['comments']
 
 message += ' * Pycodestyle check: %s\n' % statusMap[failedPycodestyle]['readStatus']
 if pycodestyleSummary['comments']:
@@ -324,8 +368,12 @@ lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=r
 if pylintSummary3k:
     lastCommit.create_status(state=statusMap[failedPy3k]['ghStatus'], target_url=reportURL + '#pylint3k',
                              description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Pylint3k')
-lastCommit.create_status(state=statusMap[failedUnitTests]['ghStatus'], target_url=reportURL + '#unittests',
-                         description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Unit tests')
+if py2UnitTestSummary:
+    lastCommit.create_status(state=statusMap[py2FailedUnitTests]['ghStatus'], target_url=reportURL + '#unittestspy2',
+                             description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Py2 Unit tests')
+if py3UnitTestSummary:
+    lastCommit.create_status(state=statusMap[py3FailedUnitTests]['ghStatus'], target_url=reportURL + '#unittestspy3',
+                             description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"), context='Py3 Unit tests')
 lastCommit.create_status(state=statusMap[failedPyFuture]['ghStatus'], target_url=reportURL + '#pyfuture',
                          description='Finished at ' + time.strftime("%d %b %Y %H:%M GMT"),
                          context='Python3 compatibility')
@@ -340,7 +388,12 @@ if pylintSummary3k and failedPy3k:
 elif pylintSummary3k:
     print('Testing of python code. DMWM-SUCCEED-PYLINT3k')
 
-if failedUnitTests:
+if py2FailedUnitTests:
+    print('Testing of python code. DMWM-FAIL-UNIT')
+else:
+    print('Testing of python code. DMWM-SUCCEED-UNIT')
+
+if py3FailedUnitTests:
     print('Testing of python code. DMWM-FAIL-UNIT')
 else:
     print('Testing of python code. DMWM-SUCCEED-UNIT')

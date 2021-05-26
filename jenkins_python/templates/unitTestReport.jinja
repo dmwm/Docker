@@ -1,5 +1,11 @@
-<a name="unittests"/>
-<h1 id="unittests">Unit test summary</h1>
+{% if whichPython == 'Python2' %}
+    <a name="unittestspy2"/>
+    <h1 id="unittestspy2">Python2 unit test summary</h1>
+{% else %}
+    <a name="unittestspy3"/>
+    <h1 id="unittestspy3">Python3 unit test summary</h1>
+{% endif %}
+
 <ul>
     {% if newFailures %}
         <li>{{ newFailures|length }} tests newly failing</li>
@@ -22,8 +28,6 @@
 </ul>
 
 {% if newFailures or added or deleted or unstableChanges or okChanges %}
-    <h1>Unit test details</h1>
-
     {% if newFailures %}
         <h2>New failures of unit tests (must be resolved)</h2>
         <ul>
@@ -32,6 +36,7 @@
             {% endfor %}
         </ul>
     {% endif %}
+
     {% if added %}
         <h2>Unit tests added</h2>
         <ul>
@@ -53,6 +58,7 @@
             {% endfor %}
         </ul>
     {% endif %}
+
     {% if unstableChanges %}
         <h2>Unstable unit tests changed (should be checked)</h2>
         <ul>
@@ -61,6 +67,7 @@
             {% endfor %}
         </ul>
     {% endif %}
+
     {% if okChanges %}
         <h2>Changed unit tests</h2>
         <ul>
