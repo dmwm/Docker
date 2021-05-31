@@ -31,8 +31,13 @@
 {%- endmacro %}
 
 
-<a name="pylint"/>
-<h1 id="pylint">Summary of pylint report</h1>
+{% if whichPython == 'Python2' %}
+    <a name="pylintpy2"/>
+    <h1 id="pylintpy2">Summary of Python2 pylint report</h1>
+{% else %}
+    <a name="pylintpy3"/>
+    <h1 id="pylintpy3">Summary of Python3 pylint report</h1>
+{% endif %}
 <ul>
     {% for filename, filereport in report|dictsort %}
         {% if 'test' in filereport %}
