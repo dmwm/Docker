@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 
-source ./env_unittest.sh
+
+if [[ -f env_unittest_py3.sh ]]
+then
+    echo "Sourcing a python3 unittest environment"
+    source env_unittest_py3.sh
+    OUT_FILENAME=pylintpy3.txt
+else
+    echo "Sourcing a python2 unittest environment"
+    source env_unittest.sh
+    OUT_FILENAME=pylint.txt
+fi
+
 
 pushd wmcore_unittest/WMCore
 export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:${PYTHONPATH}
@@ -16,8 +27,8 @@ git pull
 
 
 
-pylint -j 2 --rcfile=code/standards/.pylintrc --output-format=parseable code/src/python/* code/test/python/* > pylint.txt || true
-cp pylint.txt ${HOME}/artifacts/
+pylint -j 2 --rcfile=code/standards/.pylintrc --output-format=parseable code/src/python/* code/test/python/* > ${OUT_FILENAME} || true
+cp ${OUT_FILENAME} ${HOME}/artifacts/
 
 popd
 

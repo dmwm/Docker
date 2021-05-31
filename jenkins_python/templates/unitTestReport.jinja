@@ -29,7 +29,7 @@
 
 {% if newFailures or added or deleted or unstableChanges or okChanges %}
     {% if newFailures %}
-        <h2>New failures of unit tests (must be resolved)</h2>
+        <h3>New failures of unit tests (must be resolved)</h3>
         <ul>
             {% for test in newFailures %}
                 <li>{{ test.name }} changed from {{ test.old }} to {{ test.new }}</li>
@@ -38,7 +38,7 @@
     {% endif %}
 
     {% if added %}
-        <h2>Unit tests added</h2>
+        <h3>Unit tests added</h3>
         <ul>
             {% for test in added %}
                 {%- if  test.new in errorConditions %}
@@ -51,7 +51,7 @@
     {% endif %}
 
     {% if deleted %}
-        <h2>Unit tests deleted (should be checked)</h2>
+        <h3>Unit tests deleted (should be checked)</h3>
         <ul>
             {% for test in deleted %}
                 <li>{{ test.name }} ({{ test.old }}) was deleted</li>
@@ -60,7 +60,7 @@
     {% endif %}
 
     {% if unstableChanges %}
-        <h2>Unstable unit tests changed (should be checked)</h2>
+        <h3>Unstable unit tests changed (should be checked)</h3>
         <ul>
             {% for test in unstableChanges %}
                 <li>{{ test.name }} changed from {{ test.old }} to {{ test.new }}</li>
@@ -69,7 +69,7 @@
     {% endif %}
 
     {% if okChanges %}
-        <h2>Changed unit tests</h2>
+        <h3>Changed unit tests</h3>
         <ul>
             {% for test in okChanges %}
                 <li>{{ test.name }} changed from {{ test.old }} to {{ test.new }}</li>

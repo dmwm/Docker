@@ -24,4 +24,7 @@
             {% endfor %}
         </ul>
     {% endfor %}
+    {% if not report %}
+        <li>Nothing to report</li>
+    {% endif %}
 </ul>

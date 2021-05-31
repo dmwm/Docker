@@ -13,7 +13,7 @@
 {%- endmacro %}
 
 
-<h1>Warnings from pylint by file and severity</h1>
+<h3>Warnings from pylint by file and severity</h3>
 <ul>
     {% for filename, filereport in report|dictsort %}
         <li>{{ filename }}</li>
@@ -29,4 +29,7 @@
             {% endfor %}
         </ul>
     {% endfor %}
+    {% if not report %}
+        <li>Nothing to report</li>
+    {% endif %}
 </ul>
