@@ -11,7 +11,7 @@ pushd crabclient_test/CRABClient
 export PYTHONPATH=`pwd`/test/python:`pwd`/src/python:${PYTHONPATH}
 
 # Figure out the one commit we are interested in and what happens to the repo if we were to merge it
-git config remote.origin.url https://github.com/dmwm/CRABServer.git
+git config remote.origin.url https://github.com/dmwm/CRABClient.git
 git fetch origin pull/${ghprbPullId}/merge:PR_MERGE
 export COMMIT=`git rev-parse "PR_MERGE^{commit}"`
 git checkout -f ${COMMIT}
