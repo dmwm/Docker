@@ -290,8 +290,10 @@ with open('artifacts/PullRequestReport.html', 'w') as html:
         html.write(py3UnitTestSummaryHTML)
     if py2UnitTestSummary:
         html.write(py2UnitTestSummaryHTML)
-    html.write(pylintSummaryHTML)
-    html.write(pylintReport)
+    if pylintSummaryHTML:
+        html.write(pylintSummaryHTML)
+    if pylintReport:
+        html.write(pylintReport)
     if pylintSummaryPy3:
         html.write(pylintSummaryHTMLPy3)
         html.write(pylintReportPy3)
@@ -353,13 +355,14 @@ if py3UnitTestSummary:  # Most of the repositories do not yet have python3 unit 
     if py3UnitTestSummary['unstableChanges']:
         message += '   * %s changes in unstable tests\n' % py3UnitTestSummary['unstableChanges']
 
-message += ' * Python2 Pylint check: %s\n' % statusMap[failedPylint]['readStatus']
-if pylintSummary['failures']:
-    message += '   * %s warnings and errors that must be fixed\n' % pylintSummary['failures']
-if pylintSummary['warnings']:
-    message += '   * %s warnings\n' % pylintSummary['warnings']
-if pylintSummary['comments']:
-    message += '   * %s comments to review\n' % pylintSummary['comments']
+if pylintSummary:
+    message += ' * Python2 Pylint check: %s\n' % statusMap[failedPylint]['readStatus']
+    if pylintSummary['failures']:
+        message += '   * %s warnings and errors that must be fixed\n' % pylintSummary['failures']
+    if pylintSummary['warnings']:
+        message += '   * %s warnings\n' % pylintSummary['warnings']
+    if pylintSummary['comments']:
+        message += '   * %s comments to review\n' % pylintSummary['comments']
 
 if pylintSummaryPy3:
     message += ' * Python3 Pylint check: %s\n' % statusMap[failedPylintPy3]['readStatus']
@@ -397,8 +400,10 @@ status = issue.create_comment(message)
 
 timeNow = time.strftime("%d %b %Y %H:%M GMT")
 lastCommit = repo.get_pull(int(issueID)).get_commits().get_page(0)[-1]
-lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylintpy2',
-                         description='Finished at %s' % timeNow, context='Py2 Pylint')
+
+if pylintSummary:
+    lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylintpy2',
+                             description='Finished at %s' % timeNow, context='Py2 Pylint')
 if pylintSummaryPy3:
     lastCommit.create_status(state=statusMap[failedPylint]['ghStatus'], target_url=reportURL + '#pylintpy3',
                              description='Finished at %s' % timeNow, context='Py3 Pylint')
@@ -415,10 +420,11 @@ if pyfutureSummary:
     lastCommit.create_status(state=statusMap[failedPyFuture]['ghStatus'], target_url=reportURL + '#pyfuture',
                              description='Finished at %s' % timeNow, context='Python3 compatibility')
 
-if failedPylint:
-    print('Testing of python code. DMWM-FAIL-PYLINT')
-else:
-    print('Testing of python code. DMWM-SUCCEED-PYLINT')
+if pylintSummary:
+    if failedPylint:
+        print('Testing of python code. DMWM-FAIL-PYLINT')
+    else:
+        print('Testing of python code. DMWM-SUCCEED-PYLINT')
 
 if pylintSummary3k:
     if failedPy3k:
@@ -426,10 +432,11 @@ if pylintSummary3k:
     elif pylintSummary3k:
         print('Testing of python code. DMWM-SUCCEED-PYLINT3k')
 
-if py2FailedUnitTests:
-    print('Testing of python code. DMWM-FAIL-PY2-UNIT')
-else:
-    print('Testing of python code. DMWM-SUCCEED-PY2-UNIT')
+if py2UnitTestSummary:
+    if py2FailedUnitTests:
+        print('Testing of python code. DMWM-FAIL-PY2-UNIT')
+    else:
+        print('Testing of python code. DMWM-SUCCEED-PY2-UNIT')
 
 if py3UnitTestSummary:
     if py3FailedUnitTests:
