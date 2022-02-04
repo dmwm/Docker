@@ -1,7 +1,7 @@
 FROM gitlab-registry.cern.ch/cmsdocks/dmwm:wmcore_base
 
-RUN echo "2019-03-15" # Change to tickle new release
-RUN sh ContainerScripts/installWMCore.sh
+RUN echo "2021-05-20" # Change to tickle new release
+RUN sh ContainerScripts/installWMCorePy3.sh
 
 RUN sh ContainerScripts/updateGit.sh
 
