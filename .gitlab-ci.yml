@@ -56,18 +56,6 @@ build_wmcore_base:
     CONTEXT_DIR: wmcore_base
     FROM: $CI_REGISTRY_IMAGE:cms_grid
 
-build_wmcore_tests:
-  stage: build_3
-  tags:
-    - docker-image-build
-  script:
-    - docker build -t wmcore_tests .
-  variables:
-    TO: $CI_REGISTRY_IMAGE:wmcore_tests
-    CONTEXT_DIR: wmcore_tests
-    DOCKER_FILE: Dockerfile
-    FROM: $CI_REGISTRY_IMAGE:wmcore_base
-
 build_wmcorepy3_tests:
   stage: build_3
   tags:
@@ -77,7 +65,7 @@ build_wmcorepy3_tests:
   variables:
     TO: $CI_REGISTRY_IMAGE:wmcorepy3_tests
     CONTEXT_DIR: wmcore_tests
-    DOCKER_FILE: py3.Dockerfile
+    DOCKER_FILE: Dockerfile
     FROM: $CI_REGISTRY_IMAGE:wmcore_base
 
 build_dbs_tests:
