@@ -56,6 +56,17 @@ build_wmcore_pylint:
     CONTEXT_DIR: wmcore_pylint
     FROM: python:3.8.2-slim
 
+build_crab_staticanalysis:
+  stage: build_1
+  tags:
+    - docker-image-build
+  script:
+    - docker build -t crab_staticanalysis .
+  variables:
+    TO: $CI_REGISTRY_IMAGE:crab_staticanalysis
+    CONTEXT_DIR: crab_staticanalysis
+    FROM: python:3.8.2-slim
+
 build_wmcore_base:
   stage: build_2
   tags:
