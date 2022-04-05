@@ -426,6 +426,12 @@ if pylintSummary:
     else:
         print('Testing of python code. DMWM-SUCCEED-PYLINT')
 
+if pylintSummaryPy3:
+    if failedPylintPy3:
+        print('Testing of python code. CRAB-FAIL-PYLINTPY3')
+    else:
+        print('Testing of python code. CRAB-SUCCEED-PYLINTPY3')
+
 if pylintSummary3k:
     if failedPy3k:
         print('Testing of python code. DMWM-FAIL-PYLINT3K')
