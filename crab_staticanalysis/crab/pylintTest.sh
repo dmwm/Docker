@@ -58,7 +58,7 @@ cp pylintReport.json ${HOME}/artifacts/$JSON_FILENAME
 
 # Do pycodestyle  analysis on tip of branch
 touch NOTHING # If changedFiles.txt is empty, this will keep it from parsing the whole directory tree
-pycodestyle NOTHING --format=pylint `< changedFiles.txt` > ${PYCODESTYLE_FILENAME}
+pycodestyle --config="/home/dmwm/crab/setup.cfg" NOTHING `< changedFiles.txt` > ${PYCODESTYLE_FILENAME}
 cp ${PYCODESTYLE_FILENAME} ${HOME}/artifacts/
 
 popd
