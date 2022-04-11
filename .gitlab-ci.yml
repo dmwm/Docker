@@ -45,6 +45,17 @@ build_jenkins_python3:
     DOCKER_FILE: py3.Dockerfile
     FROM: python:3.8.2
 
+build_wmcore_pylint:
+  stage: build_1
+  tags:
+    - docker-image-build
+  script:
+    - docker build -t wmcore_pylint .
+  variables:
+    TO: $CI_REGISTRY_IMAGE:wmcore_pylint
+    CONTEXT_DIR: wmcore_pylint
+    FROM: python:3.8.2-slim
+
 build_wmcore_base:
   stage: build_2
   tags:
