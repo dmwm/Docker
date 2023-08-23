@@ -1,0 +1,14 @@
+--- .pylintrc	2024-09-05 12:29:58.482966017 +0200
++++ .pylintrc.crab	2024-09-05 12:29:53.869759592 +0200
+@@ -44,8 +44,10 @@
+ [MESSAGES CONTROL]
+ # disable F0401 - could not import module
+ # disable E1103 - Allows attachment of dbi, logger to threading.currentThread()
++# disable W1203 - f-string logging
++
++disable=F0401, E1103, W1203
+ 
+-disable=F0401, E1103
+ 
+ 
+ # checks for :

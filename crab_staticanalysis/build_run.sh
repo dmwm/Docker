@@ -7,7 +7,7 @@ IMAGETAG=registry.cern.ch/cmscrab/crabstaticanalysis:latest
 
 docker build --no-cache -t $IMAGETAG .
 
-# docker run -it $IMAGETAG 
+# docker run -it $IMAGETAG
 
 # test CRABServer
 mkdir -p ~/temp/artifacts-0 ~/temp/artifacts-1
