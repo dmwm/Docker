@@ -7,7 +7,7 @@ fi
 
 # all available env variables described at https://plugins.jenkins.io/ghprb/
 
-echo "Executing Pylint for" 
+echo "Executing Pylint for"
 echo "  \- repo $ghprbPullLink"
 echo "  \- PR ID $ghprbPullId"
 echo "  \- target branch $ghprbTargetBranch"
@@ -24,6 +24,7 @@ export PYTHONPATH=$(pwd)/src/python:$PYTHONPATH
 
 # Figure out the one commit we are interested in and what happens to the repo if we were to merge it
 git config remote.origin.url https://github.com/dmwm/$CRABREPO.git
+git fetch origin ${ghprbTargetBranch}
 git fetch origin pull/${ghprbPullId}/merge:PR_MERGE
 export COMMIT=`git rev-parse "PR_MERGE^{commit}"`
 git checkout ${ghprbTargetBranch}

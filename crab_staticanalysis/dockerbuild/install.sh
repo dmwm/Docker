@@ -11,6 +11,7 @@ fi
 python -m pip install --user -r /home/dmwm/build/requirements.txt
 
 curl -o /home/dmwm/crab/.pylintrc https://raw.githubusercontent.com/dmwm/WMCore/master/standards/.pylintrc
+patch /home/dmwm/crab/.pylintrc /home/dmwm/build/dot-pylintrc.diff
 curl -o /home/dmwm/crab/setup.cfg https://raw.githubusercontent.com/dmwm/WMCore/master/setup.cfg
 
 git clone https://github.com/dmwm/WMCore /home/dmwm/crab/WMCore

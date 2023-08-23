@@ -2,7 +2,7 @@ FROM python:3.8.2-slim
 
 RUN apt update && \
     apt-get install -y --no-install-recommends \
-    git curl \
+    git curl patch \
     && rm -rf /var/lib/apt/lists/*
 
 # Add a new user (CMS stuff refuses to install as root)
